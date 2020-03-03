@@ -251,6 +251,7 @@ public:
 		this->phase_one();
 		this->phase_two();
 		this->phase_three();
+		this->phase_four();
 	}
 	void write() {
 		this->path = regex_replace(this->path, regex("\\w+\\.dot"), "output.dot");
