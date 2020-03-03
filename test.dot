@@ -1,0 +1,9 @@
+digraph hoolahoop{
+" "->0;
+0->1 [label="b"];
+0->1 [label="a"];
+1->0 [label="0"];
+1->2 [label="a"];
+2->0 [label="0"];
+2->" ";
+}
