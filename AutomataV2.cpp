@@ -3,9 +3,11 @@
 #include<map>
 #include<set>
 #include<string>
+#include<vector>
 #include<regex>
 #include<utility> 
 #include<algorithm>
+#include<cstdio>
 #include<conio.h>
 #define input(s,p) system("cls");string p;cout << s;cin >> p;
 using namespace std;
@@ -34,7 +36,7 @@ private:
 					}
 					this->insert(n[0], n[1], list[3].str());
 				}
-				else if (regex_search(line, list, regex("\" \" *-> *([0-9]+)"))) {
+				else if (regex_search(line, list, regex("s|S *-> *([0-9]+)"))) {
 					start_in_file = true;
 					int start_node = 0;
 					for (int i = 0; i < list[1].str().length(); i++) {
@@ -42,7 +44,7 @@ private:
 					}
 					this->start.insert(start_node);
 				}
-				else if (regex_search(line, list, regex("([0-9]+) *-> *\" \""))) {
+				else if (regex_search(line, list, regex("([0-9]+) *-> *f|F"))) {
 					end_in_file = true;
 					int end_node = 0;
 					for (int i = 0; i < list[1].str().length(); i++) {
@@ -53,7 +55,7 @@ private:
 			}
 		}
 		if (!start_in_file) {
-			cout << "PLease enter the number of start nodes :\n";
+			cout << "PLease enter the number of start nodes :";
 			int n; cin >> n;
 			cout << "PLease enter the start nodes : ";
 			while (n--) {
@@ -62,7 +64,7 @@ private:
 			}
 		}
 		if (!end_in_file) {
-			cout << "PLease enter the number of end nodes :\n";
+			cout << "PLease enter the number of end nodes :";
 			int n; cin >> n;
 			cout << "PLease enter the end nodes : ";
 			while (n--) {
@@ -79,6 +81,14 @@ private:
 				if (i->first != "0") {
 					for (auto m : i->second) {
 						traverse(m);
+						if (this->end[n]) {
+							this->out << n << " [shape = doublecircle];" << endl;
+							//this->end[n] = false;//to be removed
+						}
+						if (this->end[m]) {
+							this->out << m << " [shape = doublecircle];" << endl;
+							//this->end[m] = false;//to be removed
+						}
 						this->out << n << "->" << m << " [label=\"" << i->first << "\"];" << endl;
 					}
 				}
@@ -145,6 +155,7 @@ private:
 		}
 		graph r = graph(arr, this->language, memo, this->end);
 		this->node = r.node;
+		this->start = r.start;
 		this->Processed = r.Processed;
 		this->end = r.end;
 	}
@@ -153,7 +164,7 @@ private:
 		for (map<int, map<string, set<int>>>::iterator i = this->node.begin(); i != this->node.end(); i++) {
 			for (map<string, set<int>>::iterator j = i->second.begin(); j != i->second.end(); j++) {
 				for (auto k : j->second) {
-					result[i->first][k] += result[i->first][k] == "" ? j->first : ", " + j->first;
+					result[i->first][k] += result[i->first][k] == "" ? j->first : "," + j->first;
 				}
 			}
 		}
@@ -161,19 +172,19 @@ private:
 		this->node = r.node;
 		this->Processed = r.Processed;
 	}
-	vector<set<int>> minimize(vector<set<int>> classes,vector<vector<int>>& r_signature) {
+	vector<set<int>> minimize(vector<set<int>> classes, vector<vector<int>>& r_signature) {
 		vector<set<int>> new_classes;
 		vector<vector<int>> signatures;
 		for (int i = 0; i < classes.size(); i++) {
 			map<vector<int>, set<int>> class_signature;
 			for (auto j : classes[i]) {
-				vector<int> signature(this->language.size(),-1);
+				vector<int> signature(this->language.size(), -1);
 				for (int k = 0; k < this->language.size(); k++) {
 					for (int s = 0; s < classes.size(); s++) {
-						int n;
-						for (auto t : this->node[j][this->language[k]]) n = t;
-						if (classes[s].find(n)!=classes[s].end()) {
-							signature[k] = s;
+						for (auto node : classes[s]) {
+							for (auto nodes : this->node[j][this->language[k]]) {
+								if (node == nodes) signature[k] = s;
+							}
 						}
 					}
 				}
@@ -196,18 +207,80 @@ private:
 		for (map<int, bool>::iterator i = this->end.begin(); i != this->end.end(); i++) {
 			if (i->second) classes[1].insert(i->first);
 		}
-		while (classes != minimize(classes,signatures)) classes=minimize(classes, signatures);
-		graph r = graph(classes, signatures,this->language);
+		while (classes != minimize(classes, signatures))classes = minimize(classes, signatures);
+		graph r = graph(classes, signatures, this->language, this->start);
 		this->node = r.node;
 		this->Processed = r.Processed;
+		this->start = r.start;
+	}
+	bool traverseCheck(graph* g, int state, string& key, int it) {
+		if (it == key.size()) return false;
+		string s = key.substr(it, 1);
+		for (map<string, set<int>>::iterator i = g->node[state].begin(); i != g->node[state].end(); i++) {
+			if (i->first == s) {
+				if (it == key.size() - 1) {
+					if (g->end[state])
+						return true;
+					for (auto states : i->second) {
+						if (g->end[states]) return true;
+					}
+					return false;
+
+				}
+				else {
+					bool valid = false;
+					for (int newState : i->second) {
+						valid |= traverseCheck(g, newState, key, ++it);
+						if (valid) return valid;
+					}
+					return valid;
+				}
+			}
+		}
+		return false;
+	}
+	void regexprExtratction(int state, string& s,map<int,bool>& p) {
+		if(p[state]){
+			s+=")*"; return;
+		} 
+		p[state]=true;
+		s+="(";
+		int lCount=this->node[state].size();
+		for(auto i=this->node[state].begin();i!=this->node[state].end();i++){
+			if(this->node[state].size()>1)s+="(";
+			int count =i->second.size(); 
+			for(auto j:i->second){
+				if(j==state){
+					s+=i->first+"*)";
+				}else{
+					s+=i->first;
+					regexprExtratction(j,s,p);
+					s+=")";
+				}
+				if(--count) s+="|";
+			}
+			if(--lCount) s+="|";
+		}
+	}
+	void extractREGEX() {
+		this->Gregex="";
+		cout << this->Gregex << endl;
+		bool beg=true;
+		map<int,bool> processed;
+		for (auto i:this->start) {
+			this->Gregex += beg?"(^":"|(^";beg=false;
+			regexprExtratction(i, this->Gregex,processed);
+		}
 	}
 	ofstream out;
 	ifstream in;
 public:
+
 	graph(string f_loc) {
 		this->in.open(f_loc);
 		this->path = f_loc;
 		this->read_f();
+		this->isMinDfa = false;
 	}
 	graph(map<int, map<int, string>> map_in) {
 		for (map<int, map<int, string>>::iterator i = map_in.begin(); i != map_in.end(); i++) {
@@ -233,56 +306,178 @@ public:
 				}
 			}
 		}
+		this->start.insert(0);
 	}
-	graph(vector<set<int>> classes, vector<vector<int>> signatures,vector<string> lang) {
+	graph(vector<set<int>> classes, vector<vector<int>> signatures, vector<string> lang, set<int> old_s) {
 		for (int i = 0; i < classes.size(); i++) {
-			for(int j=0;j<lang.size();j++){
-				if(signatures[i][j]!=-1)
-					this->insert(i,signatures[i][j],lang[j]);
+			for (int j = 0; j < lang.size(); j++) {
+				if (signatures[i][j] != -1) {
+					for (auto k : classes[i]) {
+						if (old_s.find(k) != old_s.end()) this->start.insert(i);
+					}
+					this->insert(i, signatures[i][j], lang[j]);
+				}
+
 			}
 		}
+	}
+	graph(graph* source) {
+		this->end = source->end;
+		this->start = source->start;
+		this->language = source->language;
+		this->Processed = source->Processed;
+		this->node = source->node;
 	}
 	void insert(int s, int f, string a) {
 		this->node[s][a].insert(f);
 		this->Processed[s] = false;
 		if (a != "0" && find(this->language.begin(), this->language.end(), a) == this->language.end()) this->language.push_back(a);
 	}
-	void optimize() {
-		this->phase_one();
-		this->phase_two();
-		this->phase_three();
-		this->phase_four();
+	void optimize(int mode) {
+		if (mode >= 1) this->phase_one();
+		if (mode >= 2) this->phase_two();
+		if (mode >= 3) {
+			this->phase_three();
+			this->isMinDfa = true;
+		}
+		//this->phase_four();
+	}
+	bool check(string s) {
+		bool valid = false;
+		for (auto state : this->start) {
+			valid |= this->traverseCheck(this, state, s, 0);
+		}
+		return valid;
 	}
 	void write() {
-		this->path = regex_replace(this->path, regex("\\w+\\.dot"), "output.dot");
-		this->out.open(this->path);
+		string out_path = regex_replace(this->path, regex("\\w+\\.dot"), "output.dot");
+		this->out.open(out_path);
 		out << "digraph " << this->name << " {" << endl;
-		this->traverse(0);
+		out << "\"\" [shape=none,width=0,height=0];" << endl;
+		out << "\" \" [shape=none,width=0,height=0];" << endl;
+		for (auto i : this->start) {
+			out << "\"\"->" << i << ";" << endl;
+			this->traverse(i);
+		}
 		out << "}";
 		this->out.close();
-		system(this->path.c_str());
+		system(out_path.c_str());
 	}
-	void render() {
+	void render(bool mode = 1) {
 		string command = "dot -Tpng file1 -o file2";
-		command = regex_replace(command, regex("file1"), this->path);
-		command = regex_replace(command, regex("file2"), regex_replace(this->path, regex("\\.dot"), ".png"));
+		if (mode) {
+			string out_path = regex_replace(this->path, regex("\\w+\\.dot"), "output.dot");
+			command = regex_replace(command, regex("file1"), out_path);
+			command = regex_replace(command, regex("file2"), regex_replace(out_path, regex("\\.dot"), ".png"));
+		}
+		else {
+			command = regex_replace(command, regex("file1"), this->path);
+			command = regex_replace(command, regex("file2"), regex_replace(this->path, regex("\\.dot"), ".png"));
+		}
 		system(command.c_str());
 	}
-	void process() {
-		this->optimize();
-		this->write();
-		this->render();
+	void process(int mode=3) {
+		this->render(0);
+		this->optimize(mode);
+		//this->write();
+		//this->render();
 	}
-	map<int, map<string, set<int>>> node;
-	map<int, bool> Processed;
-	vector<string> language;
-	set<int> start;
-	map<int, bool> end;
-	string name;
-	string path;
+	void Search() {
+		cout << "please enter ths string to check :";
+		string s; cin >> s;
+		bool b = this->check(s);
+		cout << "The word " << s << (b?" does ":" doesn't ") <<"belong to the language described by " << this->name << endl;;
+	}
+	string regExpr(){
+		this->extractREGEX();
+		return this->Gregex;
+	}
+map<int, map<string, set<int>>> node;
+map<int, bool> Processed;
+vector<string> language;
+set<int> start;
+map<int, bool> end;
+string name;
+string path;
+string Gregex;
+bool isMinDfa;
 };
+int check_v(string path) {
+	bool valid = false;
+	smatch match;
+	if(regex_search(path,match,regex("\\.(dot)|(gv)|(txt)"))) valid=true;
+	if (valid) {
+		system("cls"); return valid;
+	}
+	printf("WARNING : %s is not a VALID gv/txt File!\n", path);
+	return 0;
+}
+bool ask(string c) {
+	int b;
+	printf("are you sure you want to open this file : %s ?\n", c);
+	printf("	   print 0 for NO and 1 for yes.\n");
+	cin >> b;
+	return b && check_v(c);
+}
+bool confirm(bool& b) {
+	if (b) { system("cls"); b = !b; return !b; }
+	printf("would you like to process another GraphViz file ?\n1->\"YES\"  0->\"NO\" : ");
+	int ans; cin >> ans;
+	return ans == 1 ? 1 : (ans == 0 ? 0 : confirm(b));
+}
+int printMENU(){
+	system("cls");
+	cout <<  "###################[MAIN MENU]######################";
+	cout << "\n|| ~~~~~~> {0}      getRegexExpt     {0} <~~~~~~~~ ||";
+    cout << "\n|| ~~~~~~> {1}     Optimize Graph    {1} <~~~~~~~~ ||";
+    cout << "\n|| ~~~~~~> {2}     Match Sentence    {2} <~~~~~~~~ ||";
+    cout << "\n|| ~~~~~~> {3}  Write Graph in File  {3} <~~~~~~~~ ||";
+    cout << "\n|| ~~~~~~> {4}          exit         {4} <~~~~~~~~ ||";
+    cout << "\n######################################################";
+	cout << "\nplease enter your choice :";int ans;cin >> ans;
+	return ans;
+}
+int OptMenu(){
+	system("cls");
+	cout << "###################[ MENU]#####################";
+	cout << "\n|| ~~~~~~> {1}   eNFA 2 NFA   {1} <~~~~~~~~ ||";
+	cout << "\n|| ~~~~~~> {2}   NFA 2 DFA    {2} <~~~~~~~~ ||";
+	cout << "\n|| ~~~~~~> {3}   DFA 2 minDFA {3} <~~~~~~~~ ||";
+	cout << "\n###############################################";
+	cout << "\n||please enter your choice :";int ans;cin >> ans;
+	return ans;
+}
 int main() {
-	input("please enter the path of the file/name of file : ", path);
-	graph g = graph(path);
-	g.process();
+	bool start = true;
+	while (confirm(start)) {
+		input("please enter the path of the file/name of file : ", path, 50);
+		graph g = graph(path);
+		int exit=0;
+		while(!exit){
+			int ans = printMENU();
+			switch(ans){
+				case 0 :{
+					cout << g.regExpr() << endl;
+					break;
+				}
+				case 1 : {
+					g.process(OptMenu());
+					break;
+				}
+				case 2 : {
+					g.Search();
+					break;
+				}
+				case 3 : {
+					g.write();
+					g.render();
+					break;
+				}
+				case 4 : {
+					exit=true;
+				}
+			}
+			system("pause");
+		}
+	}
 }
