@@ -74,22 +74,22 @@ private:
 		}
 		this->in.close();
 	}
-	void traverse(int n) {
+	void traverse(ostream& off,int n) {
 		if (!this->Processed[n]) {
 			this->Processed[n] = true;
 			for (map<string, set<int>>::iterator i = this->node[n].begin(); i != this->node[n].end(); i++) {
 				if (i->first != "0") {
 					for (auto m : i->second) {
-						traverse(m);
+						traverse(off,m);
 						if (this->end[n]) {
-							this->out << n << " [shape = doublecircle];" << endl;
+							off << n << " [shape = doublecircle];" << endl;
 							//this->end[n] = false;//to be removed
 						}
 						if (this->end[m]) {
-							this->out << m << " [shape = doublecircle];" << endl;
+							off << m << " [shape = doublecircle];" << endl;
 							//this->end[m] = false;//to be removed
 						}
-						this->out << n << "->" << m << " [label=\"" << i->first << "\"];" << endl;
+						off << n << "->" << m << " [label=\"" << i->first << "\"];" << endl;
 					}
 				}
 			}
@@ -349,17 +349,20 @@ public:
 		}
 		return valid;
 	}
-	void write() {
+	void write(ostream& off) {
+		off << "digraph " << this->name << " {" << endl;
+		off << "\"\" [shape=none,width=0,height=0];" << endl;
+		off << "\" \" [shape=none,width=0,height=0];" << endl;
+		for (auto i : this->start) {
+			off << "\"\"->" << i << ";" << endl;
+			this->traverse(off,i);
+		}
+		off << "}";
+	}
+	void PrintToFile(){
 		string out_path = regex_replace(this->path, regex("\\w+\\.dot"), "output.dot");
 		this->out.open(out_path);
-		out << "digraph " << this->name << " {" << endl;
-		out << "\"\" [shape=none,width=0,height=0];" << endl;
-		out << "\" \" [shape=none,width=0,height=0];" << endl;
-		for (auto i : this->start) {
-			out << "\"\"->" << i << ";" << endl;
-			this->traverse(i);
-		}
-		out << "}";
+		this->write(this->out);
 		this->out.close();
 		system(out_path.c_str());
 	}
@@ -388,6 +391,35 @@ public:
 		bool b = this->check(s);
 		cout << "The word " << s << (b?" does ":" doesn't ") <<"belong to the language described by " << this->name << endl;;
 	}
+	graph operator+(graph &rhs){ // we use the + operation as a concatination function cause why not lol
+		graph res = graph(this); // we create a copy of the current graph using the copy constructor
+		int offset = this->node.size(); // we create an offset so the numbers of of the nodes in the second graph
+		// don't overlapp with those in the first , if the first graph has 5 nodes the scond graph's node will start at 5 not 0 
+		
+		//to concat 2 automatas, for each end node in the first graph we add an epsilon edge between it and all the starting nodes
+		// of the second graph, then we add all the node&relations in the second to the first with the offset set ofcourse
+
+		for(auto i=res.end.begin();i!=res.end.end();i++){//we loop through all the nodes in the first graph
+			if(i->second){ // we check if it's an end node if it is 
+				for(auto start:rhs.start) // we loop through all the starting nodes of the second graph
+				{
+					res.insert(i->first,start+offset,"0");// we insert an empty relation between the end nodes of the first graph and start nodes of the second graph 
+					// we did start+offset to avoid overlapps between the starts of the first with the second's
+				}
+				for(auto j=rhs.node.begin();j!=rhs.node.end();j++){ // we loop through all the nodes in the second graph
+					for(auto c=j->second.begin();c!=j->second.end();c++){// for each node we loop through edges coming out of it (edge is the realtion or arrow we saw in graph theory)
+						for(auto n:c->second){// for each edge we get the nodes reachable by it
+							res.insert(j->first+offset,n+offset,c->first);// and we insert them in the result graph with the offset added
+						}
+					}
+					if(rhs.end[j->first]) res.end[j->first+offset]=true; // we mark the end nodes in the new graph 
+					// every end node in the second graph will be an end node in the result graph too
+				}
+			}
+			res.end[i->first]=false; // end nodes of the first are no longer end node so we unmark them
+		}
+		return res;// we return the result graph
+	}
 	string regExpr(){
 		this->extractREGEX();
 		return this->Gregex;
@@ -402,6 +434,11 @@ string path;
 string Gregex;
 bool isMinDfa;
 };
+ostream& operator<<(ostream& dest,graph& g){
+	g.write(dest);
+	for(auto i=g.Processed.begin();i!=g.Processed.end();i++) i->second=false; // remaks all the nodes as not proccessed so the optimizing algorithm can process them again
+	return dest;
+}
 int check_v(string path) {
 	bool valid = false;
 	smatch match;
@@ -428,11 +465,12 @@ bool confirm(bool& b) {
 int printMENU(){
 	system("cls");
 	cout <<  "###################[MAIN MENU]######################";
-	cout << "\n|| ~~~~~~> {0}      getRegexExpt     {0} <~~~~~~~~ ||";
-    cout << "\n|| ~~~~~~> {1}     Optimize Graph    {1} <~~~~~~~~ ||";
-    cout << "\n|| ~~~~~~> {2}     Match Sentence    {2} <~~~~~~~~ ||";
-    cout << "\n|| ~~~~~~> {3}  Write Graph in File  {3} <~~~~~~~~ ||";
-    cout << "\n|| ~~~~~~> {4}          exit         {4} <~~~~~~~~ ||";
+	cout << "\n|| ~~~~~~> {0}       getRegexExpt     {0} <~~~~~~~~ ||";
+    cout << "\n|| ~~~~~~> {1}      Optimize Graph    {1} <~~~~~~~~ ||";
+    cout << "\n|| ~~~~~~> {2}      Match Sentence    {2} <~~~~~~~~ ||";
+    cout << "\n|| ~~~~~~> {3} Write Graph in console {3} <~~~~~~~~ ||";
+    cout << "\n|| ~~~~~~> {4}   Write Graph in File  {4} <~~~~~~~~ ||";
+    cout << "\n|| ~~~~~~> {5}           exit         {5} <~~~~~~~~ ||";
     cout << "\n######################################################";
 	cout << "\nplease enter your choice :";int ans;cin >> ans;
 	return ans;
@@ -441,7 +479,7 @@ int OptMenu(){
 	system("cls");
 	cout << "###################[ MENU]#####################";
 	cout << "\n|| ~~~~~~> {1}   eNFA 2 NFA   {1} <~~~~~~~~ ||";
-	cout << "\n|| ~~~~~~> {2}   NFA 2 DFA    {2} <~~~~~~~~ ||";
+	cout << "\n|| ~~~~~~> {2}    NFA 2 DFA   {2} <~~~~~~~~ ||";
 	cout << "\n|| ~~~~~~> {3}   DFA 2 minDFA {3} <~~~~~~~~ ||";
 	cout << "\n###############################################";
 	cout << "\n||please enter your choice :";int ans;cin >> ans;
@@ -469,11 +507,14 @@ int main() {
 					break;
 				}
 				case 3 : {
-					g.write();
-					g.render();
+					cout << g;
 					break;
 				}
 				case 4 : {
+					g.PrintToFile();
+					g.render();
+				}
+				case 5 : {
 					exit=true;
 				}
 			}
