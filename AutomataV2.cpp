@@ -391,34 +391,27 @@ public:
 		bool b = this->check(s);
 		cout << "The word " << s << (b?" does ":" doesn't ") <<"belong to the language described by " << this->name << endl;;
 	}
-	graph operator+(graph &rhs){ // we use the + operation as a concatination function cause why not lol
-		graph res = graph(this); // we create a copy of the current graph using the copy constructor
-		int offset = this->node.size(); // we create an offset so the numbers of of the nodes in the second graph
-		// don't overlapp with those in the first , if the first graph has 5 nodes the scond graph's node will start at 5 not 0 
-		
-		//to concat 2 automatas, for each end node in the first graph we add an epsilon edge between it and all the starting nodes
-		// of the second graph, then we add all the node&relations in the second to the first with the offset set ofcourse
-
+	graph operator+(graph &rhs){
+		graph res = graph(this); 
+		int offset = this->node.size();
 		for(auto i=res.end.begin();i!=res.end.end();i++){//we loop through all the nodes in the first graph
 			if(i->second){ // we check if it's an end node if it is 
 				for(auto start:rhs.start) // we loop through all the starting nodes of the second graph
 				{
-					res.insert(i->first,start+offset,"0");// we insert an empty relation between the end nodes of the first graph and start nodes of the second graph 
-					// we did start+offset to avoid overlapps between the starts of the first with the second's
+					res.insert(i->first,start+offset,"0");
 				}
-				for(auto j=rhs.node.begin();j!=rhs.node.end();j++){ // we loop through all the nodes in the second graph
-					for(auto c=j->second.begin();c!=j->second.end();c++){// for each node we loop through edges coming out of it (edge is the realtion or arrow we saw in graph theory)
-						for(auto n:c->second){// for each edge we get the nodes reachable by it
-							res.insert(j->first+offset,n+offset,c->first);// and we insert them in the result graph with the offset added
+				for(auto j=rhs.node.begin();j!=rhs.node.end();j++){
+					for(auto c=j->second.begin();c!=j->second.end();c++){
+						for(auto n:c->second){
+							res.insert(j->first+offset,n+offset,c->first);
 						}
 					}
-					if(rhs.end[j->first]) res.end[j->first+offset]=true; // we mark the end nodes in the new graph 
-					// every end node in the second graph will be an end node in the result graph too
+					if(rhs.end[j->first]) res.end[j->first+offset]=true;
 				}
 			}
-			res.end[i->first]=false; // end nodes of the first are no longer end node so we unmark them
+			res.end[i->first]=false; 
 		}
-		return res;// we return the result graph
+		return res;
 	}
 	string regExpr(){
 		this->extractREGEX();
@@ -466,12 +459,12 @@ int printMENU(){
 	system("cls");
 	cout <<  "###################[MAIN MENU]######################";
 	cout << "\n|| ~~~~~~> {0}       getRegexExpt     {0} <~~~~~~~~ ||";
-    cout << "\n|| ~~~~~~> {1}      Optimize Graph    {1} <~~~~~~~~ ||";
-    cout << "\n|| ~~~~~~> {2}      Match Sentence    {2} <~~~~~~~~ ||";
-    cout << "\n|| ~~~~~~> {3} Write Graph in console {3} <~~~~~~~~ ||";
-    cout << "\n|| ~~~~~~> {4}   Write Graph in File  {4} <~~~~~~~~ ||";
-    cout << "\n|| ~~~~~~> {5}           exit         {5} <~~~~~~~~ ||";
-    cout << "\n######################################################";
+    	cout << "\n|| ~~~~~~> {1}      Optimize Graph    {1} <~~~~~~~~ ||";
+    	cout << "\n|| ~~~~~~> {2}      Match Sentence    {2} <~~~~~~~~ ||";
+    	cout << "\n|| ~~~~~~> {3} Write Graph in console {3} <~~~~~~~~ ||";
+    	cout << "\n|| ~~~~~~> {4}   Write Graph in File  {4} <~~~~~~~~ ||";
+    	cout << "\n|| ~~~~~~> {5}           exit         {5} <~~~~~~~~ ||";
+    	cout << "\n######################################################";
 	cout << "\nplease enter your choice :";int ans;cin >> ans;
 	return ans;
 }
