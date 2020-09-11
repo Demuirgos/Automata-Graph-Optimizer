@@ -2,7 +2,7 @@ import re
 import os
 from graphviz import *
 os.system("cls")
-print("Please enter the Path of your graphViz file : ")
+print("Please enter the Path of your graphViz (gv/dot) file : ")
 fileName=input()
 while not os.path.exists(fileName):
     os.system("cls")
