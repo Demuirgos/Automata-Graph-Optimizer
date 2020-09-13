@@ -31,6 +31,12 @@ using namespace Windows::UI::Xaml::Navigation;
 MainPage::MainPage()
 {
 	InitializeComponent();
+	this->timer = ref new DispatcherTimer();
+	int timeDelay = 1;
+	TimeSpan ts = TimeSpan();
+	ts.Duration = timeDelay;
+	timer->Interval = TimeSpan(ts);
+	timer->Tick += ref new Windows::Foundation::EventHandler<Platform::Object^>(this, &Automata::MainPage::OnTick);
 }
 string ToCppString(String^ s) {
 	string result;
@@ -131,12 +137,8 @@ void  Automata::MainPage::linkCanvs(Canvas^ c1, Canvas^ c2) {
 
 void Automata::MainPage::getRender()
 {
-	DispatcherTimer^ timer = ref new DispatcherTimer();
-	int timeDelay = 1;
-	TimeSpan ts = TimeSpan();
-	ts.Duration = timeDelay;
-	timer->Interval = TimeSpan(ts);
-	timer->Tick += ref new Windows::Foundation::EventHandler<Platform::Object^>(this, &Automata::MainPage::OnTick);
+	timer->Stop();
+	this->isRendered = false;
 	timer->Start();
 }
 
@@ -174,11 +176,11 @@ void Automata::MainPage::fillUnderlayingData()
 	this->Button->IsEnabled = true;
 }
 
-void  Automata::MainPage::write(graph* g, int i, String^& accumulated) {
+void  Automata::MainPage::write(graph* g, int i, String^& accumulated,bool overReach) {
 	if (!g->Processed[i]) {
 		g->Processed[i] = true;
 		for (map<string, set<int>>::iterator j = g->node[i].begin(); j != g->node[i].end(); j++) {
-			if(j->first!="0")
+			if(j->first!="0" || overReach)
 				for (auto d : j->second) {
 					if (g->nodes.find(d) != g->nodes.end()) {
 						accumulated += i.ToString() + "->" + d.ToString() + " [label=\"" + FromCppString(j->first) + "\"];\n";
@@ -186,7 +188,7 @@ void  Automata::MainPage::write(graph* g, int i, String^& accumulated) {
 							accumulated += i.ToString() + "->" + "e;\n";
 							g->end[i] = false;
 						}
-						write(g, d, accumulated);
+						write(g, d, accumulated, overReach);
 					}
 				}
 		}
@@ -226,28 +228,19 @@ void Automata::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 	else {
 		this->Board->Children->Clear();
 		bool p1 = E_NFA_to_NFA->IsOn, p2 = NFA_to_DFA->IsOn, p3 = DFA_to_minDFA->IsOn;
-		this->r.copyOf(&this->g);
+		bool defaultMode = p1 | p2 | p3;
+		this->r = graph(this->g);
 		this->r.optimize(p1, p2, p3);
 		graph* r = &this->r;
-		StorageFolder^ storageFolder = ApplicationData::Current->LocalFolder;
-		MainPage^ placeHolder = this;
-		concurrency::create_task(storageFolder->CreateFileAsync("result.dot", CreationCollisionOption::ReplaceExisting));
-		Concurrency::create_task(storageFolder->GetFileAsync("result.dot")).then([placeHolder,r](StorageFile^ sampleFile)
-			{
-				Concurrency::create_task(sampleFile->OpenAsync(FileAccessMode::ReadWrite)).then([placeHolder,sampleFile, r](IRandomAccessStream^ stream)
-					{
-						IOutputStream^ outputStream = stream->GetOutputStreamAt(0);
-						DataWriter^ dataWriter = ref new DataWriter(outputStream);
-						String^ accumulated = "";
-						accumulated+="digraph result{\n";
-						for (auto i : r->start) {
-							accumulated += "s" + "->" + i.ToString() + ";\n";
-							placeHolder->write(r, i, accumulated);
-						}
-						accumulated+="}";
-						placeHolder->ResultText->Text = accumulated;
-					});
-			});
+		String^ accumulated = "";
+		r->Clean();
+		accumulated += "digraph result{\n";
+		for (auto i : r->start) {
+			accumulated += "s" + "->" + i.ToString() + ";\n";
+			this->write(r, i, accumulated, !defaultMode);
+		}
+		accumulated += "}";
+		this->ResultText->Text = accumulated;
 	}
 }
 
@@ -293,7 +286,7 @@ void Automata::MainPage::OnTick(Platform::Object^ sender, Platform::Object^ args
 			board->Children->Clear();
 			int j = 0;
 			for (auto nodePair : Graph.nodes) {
-				mappingLayout->Insert(nodePair.ToString(), ref new node(nodePair.ToString(), Graph.start.find(nodePair) != Graph.start.end(), Graph.end[nodePair], Point((float)(++j % (int)placeHolder->ActualWidth), (j / placeHolder->ActualWidth))));
+				mappingLayout->Insert(nodePair.ToString(), ref new node(nodePair.ToString(), Graph.start.find(nodePair) != Graph.start.end(), Graph.end[nodePair], Point(placeHolder->ActualWidth/2+(float)((++j*50) % (int)placeHolder->ActualWidth), placeHolder->ActualHeight / 2 + (j*50 / placeHolder->ActualWidth))));
 			}
 		}
 		else
@@ -301,6 +294,8 @@ void Automata::MainPage::OnTick(Platform::Object^ sender, Platform::Object^ args
 				auto castedChild = dynamic_cast<node^>(child);
 				mappingLayout->Insert(castedChild->Name, castedChild);
 			}
+		for (auto nodeLayout : mappingLayout)
+			nodeLayout->Value->Force = Point(0, 0);
 		return args(&Graph, board, mappingLayout);
 	};
 	auto process = [=](args arguments) {
@@ -336,9 +331,12 @@ void Automata::MainPage::OnTick(Platform::Object^ sender, Platform::Object^ args
 			}
 		}
 		if (placeHolder->isRendered) {
+			float MaxDp = 123;
 			for (auto NodeLayout : mappingLayout) {
 				auto Node = NodeLayout->Value;
-				Point dv = Point(Node->Force.X * dt + Node->Force.X * dt * dt, Node->Force.Y * dt + Node->Force.Y * dt * dt);
+				Point dv = Point(Node->Force.X * dt , Node->Force.Y * dt );
+				float dp = dv.X * dv.X + dv.Y * dv.Y;
+				if (dp > 123) dv = Point(dv.X * sqrt(MaxDp / dp), dv.Y * sqrt(MaxDp / dp));
 				Node->Position = Point(Node->Position.X + dv.X, Node->Position.Y + dv.Y);
 			}
 		}

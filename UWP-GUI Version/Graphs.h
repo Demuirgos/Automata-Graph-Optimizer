@@ -13,52 +13,6 @@
 using namespace std;
 class graph {
 private:
-	void read_f() {
-		string line;
-		this->start_in_file = false;
-		this->end_in_file = false;
-		bool beggining = true;
-		if (this->in.bad()) {
-			cout << "lol";
-		}
-		while (getline(this->in, line)) {
-			smatch list;
-			if (beggining) {
-				beggining = false;
-				if (regex_search(line, list, regex("digraph (\\w+)"))) {
-					this->name = list[1].str();
-				}
-			}
-			else {
-				if (regex_search(line, list, regex("([0-9]+) *-> *([0-9]+).*\"(\\w+)\""))) {
-					int n[] = { 0, 0 }; string a;
-					for (int k = 0; k < 2; k++) {
-						for (int i = 0; i < list[k + 1].str().length(); i++) {
-							n[k] = n[k] * 10 + list[k + 1].str()[i] - '0';
-						}
-					}
-					this->insert(n[0], n[1], list[3].str());
-				}
-				else if (regex_search(line, list, regex("s|S *-> *([0-9]+)"))) {
-					start_in_file = true;
-					int start_node = 0;
-					for (int i = 0; i < list[1].str().length(); i++) {
-						start_node = start_node * 10 + list[1].str()[i] - '0';
-					}
-					this->start.insert(start_node);
-				}
-				else if (regex_search(line, list, regex("([0-9]+) *-> *f|F"))) {
-					end_in_file = true;
-					int end_node = 0;
-					for (int i = 0; i < list[1].str().length(); i++) {
-						end_node = end_node * 10 + list[1].str()[i] - '0';
-					}
-					this->end[end_node] = true;
-				}
-			}
-		}
-		this->in.close();
-	}
 	set<int> extract_closure(int i, map<int, set<int>>& closures) {
 		if (closures.find(i) == closures.end() && this->node.find(i) != this->node.end()) {
 			closures[i].insert(i);
@@ -183,40 +137,43 @@ private:
 		return vector<string>(start, end);
 	}
 
-	void getTrapStates(int n,set<int>& isTrap, set<int>& p) {
+	bool getTrapStates(int n,set<int>& isTrap, set<int>& p) {
 		if (p.find(n) == p.end()) {
 			p.insert(n);
-			bool isTrapNode = true;
 			set<int> dest;
 			for (map<string, set<int>>::iterator it = this->node[n].begin(); it != this->node[n].end(); it++) {
 				for (auto d : it->second) {
 					dest.insert(d);
 				}
 			}
-			for (auto d : dest) {
-				if (d != n) {
-					this->getTrapStates(d, isTrap, p);
-					if (isTrap.find(d) == isTrap.end()) {
-						isTrapNode = false;
+			bool isTrapNode = true;
+			if (dest.size() == 0 && this->end[n]) return !isTrapNode;
+			if (dest.size() == 0 && !this->end[n]) return isTrapNode;
+			if(dest.size()>0) {
+				for (auto d : dest) {
+					if (d != n && isTrap.find(d)==isTrap.end()) {
+						auto isDestTrap = this->getTrapStates(d, isTrap, p);
+						isTrapNode &= isDestTrap;
 					}
 				}
 			}
-			if (isTrapNode && (this->start.find(n) != this->start.end() || !this->end[n]))
-				isTrap.insert(n);
+			if (isTrapNode) isTrap.insert(n);
+			return isTrapNode;
 		}
 	}
-	ofstream out;
-	ifstream in;
 public:
 	graph(){}
-	void copyOf(graph* r) {
-		this->start=r->start;
-		this->end = r->end;
-		this->node = r->node;
-		this->countNodes = r->countNodes;
-		this->language = r->language;
-		this->name = r->name;
-		this->Processed = r->Processed;
+	graph(graph& r) {
+		this->countNodes = r.countNodes;
+		this->end = r.end;
+		this->start = r.start;
+		this->start_in_file = r.start_in_file;
+		this->node = r.node;
+		this->nodes = r.nodes;
+		this->language = r.language;
+		this->name = r.name + "_copy";
+		this->Processed = r.Processed;
+		this->end_in_file = r.end_in_file;
 	}
 	graph(string bufferIn,int z) {
 		bool firstLine = 1;
@@ -254,13 +211,6 @@ public:
 				}
 			firstLine = 0;
 		}
-	}
-	graph(string f_loc) {
-		this->in.open(f_loc);
-		if (this->in.fail())
-			cout << "lolol";
-		this->path = f_loc;
-		this->read_f();
 	}
 	graph(map<int, map<int, string>> map_in) {
 		for (map<int, map<int, string>>::iterator i = map_in.begin(); i != map_in.end(); i++) {

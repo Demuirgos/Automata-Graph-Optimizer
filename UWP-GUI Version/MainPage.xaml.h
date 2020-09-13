@@ -39,12 +39,13 @@ namespace Automata
 		String^ data;
 		graph g;
 		graph r;
+		DispatcherTimer^ timer;
 		bool isRendered = false;;
 		void linkCanvs(Canvas^ c1, Canvas^ c2);
 		void getRender();
 		void parseText();
 		void fillUnderlayingData();
-		void write(graph* g, int i, String^& accumulated);
+		void write(graph* g, int i, String^& accumulated,bool overReach);
 		void openPath_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void E_NFA_to_NFA_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void NFA_to_DFA_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
