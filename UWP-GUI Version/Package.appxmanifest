@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+
+  IgnorableNamespaces="uap mp">
+
+  <Identity
+    Name="automata"
+    Publisher="CN=AymanBouchare"
+    Version="1.0.0.0" />
+
+  <mp:PhoneIdentity PhoneProductId="a6601e2b-d6b3-4def-a936-7e12fca25f66" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>Automata</DisplayName>
+    <PublisherDisplayName>AymanBouchare</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14393.0" MaxVersionTested="10.0.14393.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="$targetnametoken$.exe"
+      EntryPoint="Automata.App">
+      <uap:VisualElements
+        DisplayName="Automata"
+        Square44x44Logo="Assets\Square44x44Logo.png"
+        Description="Automata"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" >
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo"/>
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile >
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="landscape"/></uap:InitialRotationPreference>
+      </uap:VisualElements>
+      <Extensions>
+        <desktop:Extension Category="windows.fullTrustProcess" Executable="Assets\runner.exe">
+          <desktop:FullTrustProcess>
+            <desktop:ParameterGroup GroupId="png" Parameters="dot -Tpng C:\Users\CykaBlyat\AppData\Local\Packages\automata_wrbtxbn6vsh1g\LocalState\result.dot -o C:\Users\CykaBlyat\AppData\Local\Packages\automata_wrbtxbn6vsh1g\LocalState\result.png"/>
+          </desktop:FullTrustProcess>
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+
+</Package>
