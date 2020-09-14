@@ -1,7 +1,5 @@
 #pragma once
 #include "pch.h"
-#include<iostream>
-#include<fstream>
 #include<map>
 #include<set>
 #include<string>
@@ -9,8 +7,35 @@
 #include<regex>
 #include<utility> 
 #include<algorithm>
-
+#include "GraphManaged.h"
+using namespace Automata;
+using namespace Platform;
 using namespace std;
+class Methods {
+public:
+	static string ToCppString(String^ s) {
+		string result;
+		for (auto i : s) {
+			result += i == L'\r' ? '\n' : i;
+		}
+		return result;
+	}
+	static String^ FromCppString(std::string s) {
+		;
+		std::wstring ws;
+		ws.assign(s.begin(), s.end());
+		String^ result = ref new String(ws.c_str());
+		return result;
+	}
+	static int StringToInt(String^ s) {
+		string new_s = ToCppString(s).c_str();
+		int n = 0;
+		for (int i = 0; i < new_s.size(); i++) {
+			n = n * 10 + new_s[i] - '0';
+		}
+		return n;
+	}
+};
 class graph {
 private:
 	set<int> extract_closure(int i, map<int, set<int>>& closures) {
@@ -71,11 +96,7 @@ private:
 				i = -1; j++;
 			}
 		}
-		graph r = graph(arr, this->language, memo, this->end);
-		this->node = r.node;
-		this->start = r.start;
-		this->Processed = r.Processed;
-		this->end = r.end;
+		makeCopy(graph(arr, this->language, memo, this->end));
 	}
 	void phase_four() {
 		map<int, map<int, string>> result;
@@ -86,9 +107,7 @@ private:
 				}
 			}
 		}
-		graph r = graph(result);
-		this->node = r.node;
-		this->Processed = r.Processed;
+		makeCopy(graph(result));
 	}
 	vector<set<int>> minimize(vector<set<int>> classes, vector<vector<int>>& r_signature) {
 		vector<set<int>> new_classes;
@@ -126,17 +145,13 @@ private:
 			if (i->second) classes[1].insert(i->first);
 		}
 		while (classes != minimize(classes, signatures))classes = minimize(classes, signatures);
-		graph r = graph(classes, signatures, this->language, this->start);
-		this->node = r.node;
-		this->Processed = r.Processed;
-		this->start = r.start;
+		makeCopy(graph(classes, signatures, this->language, this->start));
 	}
 	vector<string> split(const string& str, string pattern){
 		regex r{ pattern };
 		sregex_token_iterator start{str.begin(), str.end(), r, -1 },end;
 		return vector<string>(start, end);
 	}
-
 	bool getTrapStates(int n,set<int>& isTrap, set<int>& p) {
 		if (p.find(n) == p.end()) {
 			p.insert(n);
@@ -161,10 +176,24 @@ private:
 			return isTrapNode;
 		}
 	}
-public:
-	graph(){}
-	graph(graph& r) {
-		this->countNodes = r.countNodes;
+	void write(int i, String^& accumulated) {
+		if (!this->Processed[i]) {
+			this->Processed[i] = true;
+			for (map<string, set<int>>::iterator j = this->node[i].begin(); j != this->node[i].end(); j++) {
+				for (auto d : j->second) {
+					if (this->nodes.find(d) != this->nodes.end()) {
+						accumulated += i.ToString() + "->" + d.ToString() + " [label=\"" + Methods::FromCppString(j->first) + "\"];\n";
+						if (this->end[i]) {
+							accumulated += i.ToString() + "->" + "e;\n";
+							this->end[i] = false;
+						}
+						write(d, accumulated);
+					}
+				}
+			}
+		}
+	}
+	void makeCopy(graph& r) {
 		this->end = r.end;
 		this->start = r.start;
 		this->start_in_file = r.start_in_file;
@@ -174,43 +203,6 @@ public:
 		this->name = r.name + "_copy";
 		this->Processed = r.Processed;
 		this->end_in_file = r.end_in_file;
-	}
-	graph(string bufferIn,int z) {
-		bool firstLine = 1;
-		this->start_in_file=false;
-		this->end_in_file=false;
-		vector<string> lines=split(bufferIn, "\n");
-		smatch list;
-		for (auto line : lines) {
-			if (!firstLine)
-			if (regex_search(line, list, regex("([0-9]+) *-> *([0-9]+).*\"(\\w+)\""))) {
-					int n[] = { 0, 0 };
-					for (int k = 0; k < 2; k++) {
-						for (int i = 0; i < list[k + 1].str().length(); i++) {
-							n[k] = n[k] * 10 + list[k + 1].str()[i] - '0';
-						}
-					}
-					this->insert(n[0], n[1], list[3].str());
-					this->countNodes = max(this->countNodes, max(n[0], n[1]) + 1);
-				}
-			else if (regex_search(line, list, regex("s|S *-> *([0-9]+)"))) {
-				this->start_in_file = true;
-						int n = 0;
-						for (int i = 0; i < list[1].str().length(); i++) {
-							n = n * 10 + list[1].str()[i] - '0';
-						}
-						this->start.insert(n);
-				}
-			else if (regex_search(line, list, regex("([0-9]+) *-> *f|F"))) {
-				this->end_in_file = true;
-						int n = 0;
-						for (int i = 0; i < list[1].str().length(); i++) {
-							n = n * 10 + list[1].str()[i] - '0';
-						}
-						this->end[n] = true;
-				}
-			firstLine = 0;
-		}
 	}
 	graph(map<int, map<int, string>> map_in) {
 		for (map<int, map<int, string>>::iterator i = map_in.begin(); i != map_in.end(); i++) {
@@ -251,6 +243,55 @@ public:
 			}
 		}
 	}
+public:
+	graph(){}
+	graph(graph& r) {
+		this->end = r.end;
+		this->start = r.start;
+		this->start_in_file = r.start_in_file;
+		this->node = r.node;
+		this->nodes = r.nodes;
+		this->language = r.language;
+		this->name = r.name + "_copy";
+		this->Processed = r.Processed;
+		this->end_in_file = r.end_in_file;
+	}
+	graph(string bufferIn) {
+		bool firstLine = 1;
+		this->start_in_file=false;
+		this->end_in_file=false;
+		vector<string> lines=split(bufferIn, "\n");
+		smatch list;
+		for (auto line : lines) {
+			if (!firstLine)
+			if (regex_search(line, list, regex("([0-9]+) *-> *([0-9]+).*\"(\\w+)\""))) {
+					int n[] = { 0, 0 };
+					for (int k = 0; k < 2; k++) {
+						for (int i = 0; i < list[k + 1].str().length(); i++) {
+							n[k] = n[k] * 10 + list[k + 1].str()[i] - '0';
+						}
+					}
+					this->insert(n[0], n[1], list[3].str());
+				}
+			else if (regex_search(line, list, regex("s|S *-> *([0-9]+)"))) {
+				this->start_in_file = true;
+						int n = 0;
+						for (int i = 0; i < list[1].str().length(); i++) {
+							n = n * 10 + list[1].str()[i] - '0';
+						}
+						this->start.insert(n);
+				}
+			else if (regex_search(line, list, regex("([0-9]+) *-> *f|F"))) {
+				this->end_in_file = true;
+						int n = 0;
+						for (int i = 0; i < list[1].str().length(); i++) {
+							n = n * 10 + list[1].str()[i] - '0';
+						}
+						this->end[n] = true;
+				}
+			firstLine = 0;
+		}
+	}
 	void insert(int s, int f, string a) {
 		this->node[s][a].insert(f);
 		this->Processed[s] = false;
@@ -273,6 +314,46 @@ public:
 			this->nodes.erase(trap);
 		}
 	}
+	String^ ToString() {
+		String^ accumulated = "";
+		this->Clean();
+		accumulated += "digraph result{\n";
+		for (auto i : this->start) {
+			accumulated += "s" + "->" + i.ToString() + ";\n";
+			this->write(i, accumulated);
+		}
+		accumulated += "}";
+		return accumulated;
+	}
+	GraphManaged^ ConvertFromNative() {
+		Map<int, IMap<String^, IVector<int>^>^>^ result = ref new Map<int, IMap<String^, IVector<int>^>^>();
+		for (auto Node : this->node) {
+			if (!result->HasKey(Node.first)) {
+				result->Insert(Node.first, ref new Map<String^, IVector<int>^>());
+			}
+			for (auto weight : Node.second) {
+				auto Weight = Methods::FromCppString(weight.first);
+				if (!result->Lookup(Node.first)->HasKey(Weight)) {
+					result->Lookup(Node.first)->Insert(Weight,ref new Vector<int>());
+				}
+				for (auto dest : weight.second) {
+					uint32 index;
+					if (!result->Lookup(Node.first)->Lookup(Weight)->IndexOf(dest, &index)) {
+						result->Lookup(Node.first)->Lookup(Weight)->Append(dest);
+					}
+				}
+			}
+		}
+		Vector<int>^ nodes = ref new Vector<int>();
+		for (auto Node : this->nodes) {
+			nodes->Append(Node);
+		}
+		Map<int, int>^ boundaries = ref new Map<int, int>();
+		for (auto Node : this->nodes) {
+			boundaries->Insert(Node, (this->start.find(Node) != this->start.end()) + (this->end[Node] << 1));
+		}
+		return ref new GraphManaged(result,boundaries,nodes);
+	}
 	bool start_in_file;
 	bool end_in_file;
 	map<int, map<string, set<int>>> node;
@@ -282,6 +363,4 @@ public:
 	set<int> start;
 	map<int, bool> end;
 	string name;
-	string path;
-	int countNodes=0;
 };

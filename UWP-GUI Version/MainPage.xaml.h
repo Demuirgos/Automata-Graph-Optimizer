@@ -43,23 +43,16 @@ namespace Automata
 		graph r;
 		DispatcherTimer^ timer;
 		bool isNodesRendered = false,isEdgesRendered=false;
-		void linkCanvs(IMap<String^, IVector<String^>^>^ map, IMap<String^, node^>^ layout);
 		void getRender();
 		void parseText();
 		void fillUnderlayingData();
-		void write(graph* g, int i, String^& accumulated,bool overReach);
 		void openPath_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void E_NFA_to_NFA_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void NFA_to_DFA_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void TextBlock_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void pathText_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e);
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void render_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void TextInput_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e);
 		void InsertText_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void OnTick(Platform::Object^ sender, Platform::Object^ args);
 		void InputText_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e);
 		void RenderButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void Board_ManipulationDelta(Platform::Object^ sender, Windows::UI::Xaml::Input::ManipulationDeltaRoutedEventArgs^ e);
 	};
 }

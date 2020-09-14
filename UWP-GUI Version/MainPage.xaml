@@ -29,7 +29,7 @@
                     </FlyoutBase.AttachedFlyout>
                 </Button>
             </StackPanel>
-            <TextBox x:Name="pathText" HorizontalAlignment="Center" Margin="10,10,0,0" Grid.Column="0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="169" Height="32" TextChanged="pathText_TextChanged" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1"/>
+            <TextBox x:Name="pathText" HorizontalAlignment="Center" Margin="10,10,0,0" Grid.Column="0" Text="" TextWrapping="Wrap" Width="163" Height="32" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1"/>
             <ToggleSwitch x:Name="E_NFA_to_NFA" Header="E_NFA_to_NFA" Margin="0,10,0,0" VerticalAlignment="Top" Width="154" Toggled="E_NFA_to_NFA_Toggled" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" HorizontalAlignment="Center"/>
             <ToggleSwitch x:Name="NFA_to_DFA" Header="NFA_to_DFA" Margin="0,0,0,0" VerticalAlignment="Top" Width="154" Toggled="NFA_to_DFA_Toggled" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" HorizontalAlignment="Center"/>
             <ToggleSwitch x:Name="DFA_to_minDFA" Header="DFA_to_minDFA" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" Width="154" HorizontalAlignment="Center"/>
@@ -49,25 +49,30 @@
         <TextBlock HorizontalAlignment="Left" Margin="27,25,0,0" Text="Automata_Graph_Optimizer" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="48" Height="64" Width="587" Grid.ColumnSpan="2"/>
         <TextBlock HorizontalAlignment="Left" Margin="9,105,0,0" Text="Settings :" TextWrapping="Wrap" VerticalAlignment="Top" Height="32" Width="117" FontSize="24" FontWeight="Bold"/>
         <TextBlock HorizontalAlignment="Left" Margin="15,105,0,0" Text="Result :" TextWrapping="Wrap" VerticalAlignment="Top" Height="32" Width="117" FontSize="24" FontWeight="Bold" Grid.Column="1"/>
-        <Pivot Grid.Row="1" Grid.Column="1">
+        <Pivot Grid.Row="1" Grid.Column="1" Margin="0,-10,0,0">
             <PivotItem Header="Image Data">
-                <FlipView x:Name="Holder" Margin="10,5,10,10" Grid.Row="1" Grid.Column="1">
-                    <FlipViewItem>
-                        <Canvas x:Name="Board" Background="White" Height="{Binding ElementName=Holder,Path=Height}" Width="{Binding ElementName=Holder,Path=Width}" RequestedTheme="Light" AllowDrop="True" ManipulationMode="All" ManipulationDelta="Board_ManipulationDelta">
-                        </Canvas>
-                    </FlipViewItem>
-                    <FlipViewItem >
-                        <Canvas x:Name="ResultBoard" Background="White" Height="{Binding ElementName=Holder,Path=Height}" Width="{Binding ElementName=Holder,Path=Width}" RequestedTheme="Light" AllowDrop="True" ManipulationMode="All" ManipulationDelta="Board_ManipulationDelta"/>
-                    </FlipViewItem>
-                </FlipView>
+                <Grid>
+                    <FlipView x:Name="Holder" Margin="10,5,10,10" Grid.Row="1" Grid.Column="1">
+                        <FlipViewItem>
+                            <local:CanvasRenderer x:Name="InputBoard"/>
+                        </FlipViewItem>
+                        <FlipViewItem >
+                            <local:CanvasRenderer x:Name="ResultBoard"/>
+                        </FlipViewItem>
+                    </FlipView>
+                </Grid>
             </PivotItem>
             <PivotItem Header="Text Data">
                 <FlipView>
                     <FlipViewItem >
-                        <TextBox x:Name="ResultText" Header="Result Graph : " AcceptsReturn="True" IsReadOnly="True"/>
+                        <Grid>
+                            <TextBox x:Name="ResultText" Header="Result Graph : " AcceptsReturn="True" IsReadOnly="True"/>
+                        </Grid>
                     </FlipViewItem>
                     <FlipViewItem >
-                        <TextBox x:Name="InputText" Header="Input Graph : " AcceptsReturn="True" TextChanged="InputText_TextChanged"/>
+                        <Grid>
+                            <TextBox x:Name="InputText" Header="Input Graph : " AcceptsReturn="True" TextChanged="InputText_TextChanged"/>
+                        </Grid>
                     </FlipViewItem>
                 </FlipView>
             </PivotItem>

@@ -21,14 +21,18 @@ using namespace Windows::UI::Xaml::Navigation;
 
 namespace Automata
 {
+	public delegate void translatedEvent(edge^ sender, Point newPos);
 	[Windows::Foundation::Metadata::WebHostHidden]
 	public ref class edge sealed 
 	{
 	public:
+		event translatedEvent^ moved;
 		edge(node^ start,node^ end, String^ weight);
 		property Point Start {
 			Point get() { return this->start->Position; }
-			void set(Point v) { this->start->Position = v; }
+			void set(Point v) { 
+				this->start->Position = v; 
+			}
 		}
 		property Point End {
 			Point get() { return this->end->Position; }
@@ -48,5 +52,7 @@ namespace Automata
 		void update();
 		void InnerLine_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 		void Onmoved(node^ sender,Windows::Foundation::Point newPos);
+		void InnerLine_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Label_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 	};
 }

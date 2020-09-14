@@ -1,0 +1,21 @@
+﻿<UserControl
+    x:Class="Automata.CanvasRenderer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Automata"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d">
+    <Grid>
+        <Canvas x:Name="Board" Background="White" RequestedTheme="Light" ManipulationMode="All" ManipulationDelta="Board_ManipulationDelta" Grid.ColumnSpan="2"/>
+        <AppBar VerticalAlignment="Bottom" Grid.ColumnSpan="2">
+            <AppBar.Content>
+                <GridView>
+                    <AppBarElementContainer>
+                        <Slider x:Name="Rslider" Value="0.005" Margin="10" Width="500" Maximum="1" Minimum="0.01" TickFrequency="0.1" StepFrequency="0.01" ValueChanged="Rslider_ValueChanged"/>
+                    </AppBarElementContainer>
+                </GridView>
+            </AppBar.Content>
+        </AppBar>
+    </Grid>
+</UserControl>

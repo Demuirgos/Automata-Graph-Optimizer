@@ -14,10 +14,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="GraphManaged.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="Graphs.h" />
+    <ClInclude Include="GraphManaged.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LockScreenLogo.scale-200.png">
@@ -52,5 +54,6 @@
     <Page Include="MainPage.xaml" />
     <Page Include="node.xaml" />
     <Page Include="edge.xaml" />
+    <Page Include="CanvasRenderer.xaml" />
   </ItemGroup>
 </Project>

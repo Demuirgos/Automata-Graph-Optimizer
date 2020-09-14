@@ -30,6 +30,7 @@ edge::edge(node^ start, node^ end, String^ weight)
 	//this->InnerLine->X1 = start.X; this->InnerLine->Y1 = start.Y;
 	this->start->moved += ref new Automata::positionChanged(this, &Automata::edge::Onmoved);
 	this->end->moved += ref new Automata::positionChanged(this, &Automata::edge::Onmoved);
+	this->Label->Text = "test";
 }
 
 
@@ -37,15 +38,30 @@ void Automata::edge::update()
 {
 	this->InnerLine->X2 = end->Position.X - start->Position.X;
 	this->InnerLine->Y2 = end->Position.Y - start->Position.Y;
+	this->Label->Text = weight;
+	this->Label->Margin = Thickness(((this->End.X + this->Start.X)/2)- this->Start.X + 10, ((this->End.Y + this->Start.Y) / 2) - this->Start.Y,0,0);
 }
 
 void Automata::edge::InnerLine_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
 {
-	FlyoutBase::ShowAttachedFlyout(dynamic_cast<FrameworkElement^>(sender));
+	this->Label->Visibility == Windows::UI::Xaml::Visibility::Visible;
 }
 
 
 void Automata::edge::Onmoved(node^ sender,Windows::Foundation::Point newPos)
 {
 	update();
+	moved(this, this->Start);
+}
+
+
+void Automata::edge::InnerLine_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	this->Label->Visibility == Windows::UI::Xaml::Visibility::Collapsed;
+}
+
+
+void Automata::edge::Label_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+
 }
