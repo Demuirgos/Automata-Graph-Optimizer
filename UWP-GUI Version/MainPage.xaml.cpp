@@ -6,7 +6,6 @@
 #include "pch.h"
 #include "MainPage.xaml.h"
 #include "Graphs.h"
-#include "node.xaml.h"
 using namespace Platform::Collections;
 
 using namespace Automata;
@@ -117,28 +116,24 @@ int StringToInt(String^ s) {
 	return n;
 }
 
-void  Automata::MainPage::linkCanvs(Canvas^ c1, Canvas^ c2) {
-	Shapes::Polyline^ Line = ref new Shapes::Polyline();
-	Line->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Black);
-	Line->StrokeThickness = 4;
-	PointCollection^ vertices = ref new PointCollection();
-	float c1X = this->Board->GetLeft(c1) + 50/2;
-	float c1Y = this->Board->GetTop(c1) + 60 / 2;
-	float c2X = this->Board->GetLeft(c2) + 50 / 2;
-	float c2Y = this->Board->GetTop(c2) + 60 / 2;
-	Point*  p1 = new Point(c2X, c2Y);
-	Point* p2 = new Point(c1X, c1Y);
-	vertices->Append(*p1);
-	vertices->Append(*p2);
-	Line->Points = vertices;
-	this->Board->Children->Append(Line);
-	this->Board->SetZIndex(Line, -1);
+void  Automata::MainPage::linkCanvs(IMap<String^, IVector<String^>^>^ map, IMap<String^, node^>^ layout) {
+	this->isEdgesRendered = true;
+	for (auto start : map) {
+		for (auto dest : start->Value) {
+			edge^ edg = ref new edge(layout->Lookup(start->Key), layout->Lookup(dest), "0");
+			this->Board->Children->Append(edg);
+			this->Board->SetLeft(edg, layout->Lookup(start->Key)->Position.X + layout->Lookup(start->Key)->Size / 2);
+			this->Board->SetTop(edg, layout->Lookup(start->Key)->Position.Y + layout->Lookup(start->Key)->Size / 2);
+			this->Board->SetZIndex(edg, -1);
+		}
+	}
 }
 
 void Automata::MainPage::getRender()
 {
 	timer->Stop();
-	this->isRendered = false;
+	this->isNodesRendered = false;
+	this->isEdgesRendered = false;
 	timer->Start();
 }
 
@@ -197,7 +192,7 @@ void  Automata::MainPage::write(graph* g, int i, String^& accumulated,bool overR
 
 void Automata::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	isRendered = false;
+	isNodesRendered = isEdgesRendered = false;
 	if (!g.start_in_file) {
 		g.start.clear();
 		for (int i = 0; i < g.countNodes; i++) {
@@ -249,14 +244,12 @@ void Automata::MainPage::render_Click(Platform::Object^ sender, Windows::UI::Xam
 
 }
 
-
 void Automata::MainPage::TextInput_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e)
 {
 	this->InputText->Text = dynamic_cast<TextBox^>(sender)->Text;
 	this->data = dynamic_cast<TextBox^>(sender)->Text;
 	fillUnderlayingData();
 }
-
 
 void Automata::MainPage::InsertText_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
@@ -267,21 +260,51 @@ void Automata::MainPage::InsertText_Click(Platform::Object^ sender, Windows::UI:
 void Automata::MainPage::OnTick(Platform::Object^ sender, Platform::Object^ args)
 {
 	auto L = 69; // spring rest length
-	auto Kr = 6543; // repulsive force constant
-	auto Ks = 1.23; // spring constant
+	auto Kr = 6; // repulsive force constant
+	auto Ks = 7; // spring constant
 	auto dt = (double)dynamic_cast<DispatcherTimer^>(sender)->Interval.Duration;
-	bool rendered = this->isRendered;
+	bool rendered = this->isNodesRendered;
 	MainPage^ placeHolder = this;
 	struct args {
-		args(graph* _g, Canvas^ _c, IMap<String^, node^>^ _m) {
+		args(IMap<String^, IVector<String^>^>^ _g, Canvas^ _c, IMap<String^, node^>^ _m) {
 			g = _g; c = _c; m = _m;
 		}
-		graph* g;
 		Canvas^ c;
 		IMap<String^, node^>^ m;
+		IMap<String^, IVector<String^>^>^ g;
 	};
 	auto getLayoutMap = [=](graph& Graph, Canvas^ board) {
 		Map<String^, node^>^ mappingLayout = ref new Map<String^, node^>();
+		Map<String^, IVector<String^>^>^ mappingGraph = ref new Map<String^, IVector<String^>^>();
+		auto insertNode = [](IMap<String^, IVector<String^>^>^ result, String^ source, String^ dest) {
+			auto swap = [](String^& src,String^& dest) {
+				String^ tmp = src; src = dest; dest = tmp;
+			};
+			for (int i = 0; i < 2; i++) {
+				if (result->HasKey(source)) {
+					auto adjcNode = result->Lookup(source);
+					if (adjcNode != nullptr) {
+						uint32 index;
+						if (!adjcNode->IndexOf(dest, &index)) {
+							adjcNode->Append(dest);
+						}
+					}
+				}
+				else {
+					Vector<String^>^ destSet = ref new Vector<String^>();
+					destSet->Append(dest);
+					result->Insert(source, destSet);
+				}
+				swap(source, dest);
+			}
+		};
+		for (auto Node : Graph.nodes) {
+			for (auto edge : Graph.node[Node]) {
+				for (auto dest : edge.second) {
+					insertNode(mappingGraph,Node.ToString(), dest.ToString());
+				}
+			}
+		}
 		if (!rendered) {
 			board->Children->Clear();
 			int j = 0;
@@ -292,11 +315,12 @@ void Automata::MainPage::OnTick(Platform::Object^ sender, Platform::Object^ args
 		else
 			for (Object^ child : board->Children) {
 				auto castedChild = dynamic_cast<node^>(child);
-				mappingLayout->Insert(castedChild->Name, castedChild);
+				if(castedChild!=nullptr)
+					mappingLayout->Insert(castedChild->Name, castedChild);
 			}
 		for (auto nodeLayout : mappingLayout)
 			nodeLayout->Value->Force = Point(0, 0);
-		return args(&Graph, board, mappingLayout);
+		return args(mappingGraph, board, mappingLayout);
 	};
 	auto process = [=](args arguments) {
 		auto Graph = arguments.g;
@@ -304,12 +328,12 @@ void Automata::MainPage::OnTick(Platform::Object^ sender, Platform::Object^ args
 		auto board = arguments.c;
 		auto calculateForces = [=](node^& Node1,node^& Node2,float forceCoeff,bool isRepuslive) {
 			Point dv = Point(Node2->Position.X - Node1->Position.X, Node2->Position.Y - Node1->Position.Y);
-			if (dv != Point(0, 0)) {
+			if (dv.X!=0 || dv.Y!=0) {
 				double distance = sqrt(dv.X * dv.X + dv.Y * dv.Y);
 				float f = isRepuslive ? (forceCoeff/(distance* distance)) : (forceCoeff*(distance-L));
 				Point F = Point((float)f * dv.X / distance, (float)f * dv.Y / distance);
 				Node1->Force = Point(Node1->Force.X + isRepuslive ? (-1) : 1 * F.X, Node1->Force.Y + isRepuslive ? (-1) : 1 * F.Y);
-				Node2->Force = Point(Node1->Force.X + isRepuslive ? 1 : (-1) * F.X, Node1->Force.Y + isRepuslive ? 1 : (-1) * F.Y);
+				Node2->Force = Point(Node2->Force.X + isRepuslive ? 1 : (-1) * F.X, Node2->Force.Y + isRepuslive ? 1 : (-1) * F.Y);
 			}
 		};
 		for (auto Node1PaIR: mappingLayout) {
@@ -321,40 +345,45 @@ void Automata::MainPage::OnTick(Platform::Object^ sender, Platform::Object^ args
 				}
 			}
 		}
-		for (auto GraphNode : Graph->node) {
-			auto Node1 = mappingLayout->Lookup(GraphNode.first.ToString());
-			for (auto edgeLiaison : GraphNode.second) {
-				for (auto neighbor : edgeLiaison.second) {
-					auto Node2 = mappingLayout->Lookup(neighbor.ToString());
-					calculateForces(Node1, Node2,Ks,false);
-				}
+		for (auto GraphNode : Graph) {
+			auto Node1 = mappingLayout->Lookup(GraphNode->Key);
+			for (auto neighbor : GraphNode->Value) {
+				auto Node2 = mappingLayout->Lookup(neighbor);
+				calculateForces(Node1, Node2,Ks,false);
 			}
 		}
-		if (placeHolder->isRendered) {
-			float MaxDp = 123;
+		if (placeHolder->isNodesRendered) {
+			float MaxDp = 23;
 			for (auto NodeLayout : mappingLayout) {
 				auto Node = NodeLayout->Value;
 				Point dv = Point(Node->Force.X * dt , Node->Force.Y * dt );
 				float dp = dv.X * dv.X + dv.Y * dv.Y;
-				if (dp > 123) dv = Point(dv.X * sqrt(MaxDp / dp), dv.Y * sqrt(MaxDp / dp));
+				if (dp > MaxDp) dv = Point(dv.X * sqrt(MaxDp / dp), dv.Y * sqrt(MaxDp / dp));
 				Node->Position = Point(Node->Position.X + dv.X, Node->Position.Y + dv.Y);
 			}
 		}
 		else {
-			placeHolder->isRendered = true;
+			placeHolder->isNodesRendered = true;
 			for (auto Node : mappingLayout) {
 				board->Children->Append(Node->Value);
 			}
+			
 		}
+		if (!placeHolder->isEdgesRendered)
+			placeHolder->linkCanvs(Graph,mappingLayout);
 		for (auto Node : mappingLayout) {
 			board->SetLeft(Node->Value, Node->Value->Position.X);
 			board->SetTop(Node->Value, Node->Value->Position.Y);
 		}
+		for (Object^ Edge : board->Children) {
+			auto castedEdge = dynamic_cast<edge^>(Edge);
+			if (castedEdge != nullptr) {
+				board->SetLeft(castedEdge, castedEdge->Start.X + castedEdge->Size/2);
+				board->SetTop(castedEdge, castedEdge->Start.Y + castedEdge->Size /2);
+			}
+		}
 	};
 	process(getLayoutMap(this->g, this->Board));
-	/*Render result graph*/{
-		
-	}
 }
 
 
@@ -369,4 +398,16 @@ void Automata::MainPage::InputText_TextChanged(Platform::Object^ sender, Windows
 void Automata::MainPage::RenderButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	getRender();
+}
+
+
+void Automata::MainPage::Board_ManipulationDelta(Platform::Object^ sender, Windows::UI::Xaml::Input::ManipulationDeltaRoutedEventArgs^ e)
+{
+	Canvas^ castedSender = dynamic_cast<Canvas^>(sender);
+	for (Object^ element : castedSender->Children) {
+		auto castedElement = dynamic_cast<node^>(element);
+		if (castedElement != nullptr) {
+			castedElement->Position = Point(castedElement->Position.X + e->Delta.Translation.X, castedElement->Position.Y + e->Delta.Translation.Y);
+		}
+	}
 }

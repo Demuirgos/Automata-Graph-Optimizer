@@ -7,6 +7,8 @@
 
 #include "MainPage.g.h"
 #include "Graphs.h"
+#include "node.xaml.h"
+#include "edge.xaml.h"
 
 using namespace std;
 using namespace Windows::Storage;
@@ -40,8 +42,8 @@ namespace Automata
 		graph g;
 		graph r;
 		DispatcherTimer^ timer;
-		bool isRendered = false;;
-		void linkCanvs(Canvas^ c1, Canvas^ c2);
+		bool isNodesRendered = false,isEdgesRendered=false;
+		void linkCanvs(IMap<String^, IVector<String^>^>^ map, IMap<String^, node^>^ layout);
 		void getRender();
 		void parseText();
 		void fillUnderlayingData();
@@ -58,5 +60,6 @@ namespace Automata
 		void OnTick(Platform::Object^ sender, Platform::Object^ args);
 		void InputText_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e);
 		void RenderButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void Board_ManipulationDelta(Platform::Object^ sender, Windows::UI::Xaml::Input::ManipulationDeltaRoutedEventArgs^ e);
 	};
 }

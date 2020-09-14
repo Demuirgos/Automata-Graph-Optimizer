@@ -53,10 +53,11 @@
             <PivotItem Header="Image Data">
                 <FlipView x:Name="Holder" Margin="10,5,10,10" Grid.Row="1" Grid.Column="1">
                     <FlipViewItem>
-                        <Canvas x:Name="Board" Background="White" Height="{Binding ElementName=Holder,Path=Height}" Width="{Binding ElementName=Holder,Path=Width}" RequestedTheme="Light" AllowDrop="True"/>
+                        <Canvas x:Name="Board" Background="White" Height="{Binding ElementName=Holder,Path=Height}" Width="{Binding ElementName=Holder,Path=Width}" RequestedTheme="Light" AllowDrop="True" ManipulationMode="All" ManipulationDelta="Board_ManipulationDelta">
+                        </Canvas>
                     </FlipViewItem>
                     <FlipViewItem >
-                        <Canvas x:Name="ResultBoard" Background="White" Height="{Binding ElementName=Holder,Path=Height}" Width="{Binding ElementName=Holder,Path=Width}" RequestedTheme="Light" AllowDrop="True"/>
+                        <Canvas x:Name="ResultBoard" Background="White" Height="{Binding ElementName=Holder,Path=Height}" Width="{Binding ElementName=Holder,Path=Width}" RequestedTheme="Light" AllowDrop="True" ManipulationMode="All" ManipulationDelta="Board_ManipulationDelta"/>
                     </FlipViewItem>
                 </FlipView>
             </PivotItem>

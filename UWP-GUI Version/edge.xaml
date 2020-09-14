@@ -5,11 +5,15 @@
     xmlns:local="using:Automata"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    mc:Ignorable="d">
 
     <Grid>
-        <Line X1="0" Y1="0" X2="10" Y2="0" Stroke="Black" Fill="Black"/>
+        <Line x:Name="InnerLine" X1="0" Y1="0" X2="0" Y2="0" Stroke="Black" Fill="Black" StrokeThickness="5" PointerEntered="InnerLine_PointerEntered">
+            <FlyoutBase.AttachedFlyout>
+                <Flyout>
+                    <TextBlock x:Name="Label" Text=""/>
+                </Flyout>
+            </FlyoutBase.AttachedFlyout>
+        </Line>
     </Grid>
 </UserControl>

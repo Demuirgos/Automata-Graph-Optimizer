@@ -18,6 +18,7 @@ using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
 namespace Automata
 {
+	public delegate void positionChanged(node^ sender, Point newPos);
 	enum NodeType {
 		StartingNode,
 		EndingNode,
@@ -28,16 +29,23 @@ namespace Automata
 	public ref class node sealed
 	{
 	public:
+		event positionChanged^ moved;
 		node(String^ label, bool StartFlag, bool EndFlag, Point start);
 		node(String^ label, bool StartFlag, bool EndFlag, float size);
 		void Initialize();
 		property Point Position {
 			Point get() { return this->Location; }
-			void set(Point v) { this->Location = v; }
+			void set(Point v) { 
+				this->Location = v; 
+				moved(this, this->Location);
+			}
 		}
 		property String^ Label {
 			String^ get() { return this->_Label; }
 			void set(String^ v) { this->_Label = v; }
+		}
+		property float Size {
+			float get() { return this->size; }
 		}
 		property Point Force {
 			Point get() { return this->force; }

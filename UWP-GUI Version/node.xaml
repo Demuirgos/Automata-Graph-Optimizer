@@ -10,8 +10,8 @@
     d:DesignWidth="50">
 
     <Grid>
-        <Ellipse x:Name="shape" Width="45" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center" Stroke="Black" StrokeThickness="5">
+        <Ellipse x:Name="shape" Width="45" Fill="White" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center" Stroke="Black" StrokeThickness="5">
         </Ellipse>
-        <TextBlock x:Name="id" Width="30" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center" Text="0" TextAlignment="Center"/>
+        <TextBlock x:Name="id" Width="30" Height="20" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Text="0" TextAlignment="Center"/>
     </Grid>
 </UserControl>
