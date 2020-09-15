@@ -55,5 +55,10 @@ namespace Automata
 		void InputText_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e);
 		void RenderButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void Holder_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
+		void OnStartChecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void OnEndChecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void OnStartUnchecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void OnEndUnchecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void optimizeGraph();
 	};
 }

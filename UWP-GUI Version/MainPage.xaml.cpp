@@ -82,9 +82,17 @@ void Automata::MainPage::NFA_to_DFA_Toggled(Platform::Object^ sender, Windows::U
 
 void Automata::MainPage::getRender()
 {
-	this->InputBoard->clear();
-	this->InputBoard->Graph = this->g.ConvertFromNative();
-	this->InputBoard->start();
+	if (this->Holder->SelectedIndex == 0) {
+		this->InputBoard->clear();
+		this->InputBoard->Graph = this->g.ConvertFromNative();
+		this->InputBoard->start();
+	}
+	else if(this->Holder->SelectedIndex == 1) {
+		optimizeGraph();
+		this->ResultBoard->clear();
+		this->ResultBoard->Graph = this->r.ConvertFromNative();
+		this->ResultBoard->start();
+	}
 }
 
 void Automata::MainPage::parseText()
@@ -109,6 +117,8 @@ void Automata::MainPage::fillUnderlayingData()
 		c->Content = "Node :" + i->first.ToString();
 		c->Name = i->first.ToString();
 		Start_slect_grid->Items->Append(c);
+		c->Checked += ref new Windows::UI::Xaml::RoutedEventHandler(this, &Automata::MainPage::OnStartChecked);
+		c->Unchecked += ref new Windows::UI::Xaml::RoutedEventHandler(this, &Automata::MainPage::OnStartUnchecked);
 	}
 	if (!g.end_in_file)
 		End_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Visible;
@@ -117,30 +127,14 @@ void Automata::MainPage::fillUnderlayingData()
 		c->Content = "Node :" + (*i).ToString();
 		c->Name = (*i).ToString();
 		End_slect_grid->Items->Append(c);
+		c->Checked += ref new Windows::UI::Xaml::RoutedEventHandler(this, &Automata::MainPage::OnEndChecked);
+		c->Unchecked += ref new Windows::UI::Xaml::RoutedEventHandler(this, &Automata::MainPage::OnEndUnchecked);
 	}
 	this->Button->IsEnabled = true;
 }
 
 void Automata::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	if (!g.start_in_file) {
-		g.start.clear();
-		for (int i = 0; i < this->Start_slect_grid->Items->Size; i++) {
-			CheckBox^ check1 = (CheckBox^)this->Start_slect_grid->Items->GetAt(i);
-			if (check1 != nullptr && check1->IsChecked->Value == true) {
-				g.start.insert(Methods::StringToInt(check1->Name));
-			}
-		}
-	}
-	if (!g.end_in_file) {
-		g.end.clear();
-		for (int i = 0; i < this->End_slect_grid->Items->Size; i++) {
-			CheckBox^ check2 = (CheckBox^)this->End_slect_grid->Items->GetAt(i);
-			if (check2 != nullptr && check2->IsChecked->Value == true) {
-				g.end[Methods::StringToInt(check2->Name)] = true;
-			}
-		}
-	}
 	if (g.start.size() == 0 || g.end.size() == 0) {
 		ContentDialog^ Warning = ref new ContentDialog();
 		String^ MSGContent = ref new String();
@@ -151,9 +145,7 @@ void Automata::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 		Concurrency::create_task(Warning->ShowAsync());
 	}
 	else {
-		bool p1 = E_NFA_to_NFA->IsOn, p2 = NFA_to_DFA->IsOn, p3 = DFA_to_minDFA->IsOn;
-		this->r = graph(this->g);
-		this->r.optimize(p1, p2, p3);
+		optimizeGraph();
 		this->ResultText->Text = this->r.ToString();
 	}
 }
@@ -185,12 +177,39 @@ void Automata::MainPage::RenderButton_Click(Platform::Object^ sender, Windows::U
 	getRender();
 }
 
-
-
-
 void Automata::MainPage::Holder_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
 {
 	auto castedSender = dynamic_cast<FlipView^>(sender);
 	this->InputBoard->Width = castedSender->ActualWidth; this->InputBoard->Height = castedSender->ActualHeight;
 	this->ResultBoard->Width = castedSender->ActualWidth; this->ResultBoard->Height = castedSender->ActualHeight;
+}
+
+
+
+void Automata::MainPage::OnStartChecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	g.start.insert(Methods::StringToInt(((CheckBox^)sender)->Name));
+}
+
+
+void Automata::MainPage::OnStartUnchecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	g.start.erase(Methods::StringToInt(((CheckBox^)sender)->Name));
+}
+
+void Automata::MainPage::OnEndChecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	g.end[Methods::StringToInt(((CheckBox^)sender)->Name)]=true;
+}
+
+void Automata::MainPage::OnEndUnchecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	g.end.erase(Methods::StringToInt(((CheckBox^)sender)->Name));
+}
+
+void Automata::MainPage::optimizeGraph()
+{
+	bool p1 = E_NFA_to_NFA->IsOn, p2 = NFA_to_DFA->IsOn, p3 = DFA_to_minDFA->IsOn;
+	this->r = graph(this->g);
+	this->r.optimize(p1, p2, p3);
 }

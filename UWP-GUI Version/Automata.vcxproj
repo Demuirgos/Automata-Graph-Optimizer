@@ -189,9 +189,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BlankPage.xaml.h">
-      <DependentUpon>BlankPage.xaml</DependentUpon>
-    </ClInclude>
     <ClInclude Include="CanvasRenderer.xaml.h">
       <DependentUpon>CanvasRenderer.xaml</DependentUpon>
     </ClInclude>
@@ -215,9 +212,6 @@
     <ApplicationDefinition Include="App.xaml">
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="BlankPage.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="CanvasRenderer.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -255,9 +249,6 @@
   <ItemGroup>
     <ClCompile Include="App.xaml.cpp">
       <DependentUpon>App.xaml</DependentUpon>
-    </ClCompile>
-    <ClCompile Include="BlankPage.xaml.cpp">
-      <DependentUpon>BlankPage.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="CanvasRenderer.xaml.cpp">
       <DependentUpon>CanvasRenderer.xaml</DependentUpon>

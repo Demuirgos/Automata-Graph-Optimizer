@@ -102,36 +102,34 @@ void Automata::CanvasRenderer::process()
 			double distance = sqrt(dv.X * dv.X + dv.Y * dv.Y);
 			float f = (isRepuslive ? (forceCoeff / (pow(L * distance, 2))) : (forceCoeff * (distance - L) / L));
 			Point F = Point((float)f * dv.X / distance, (float)f * dv.Y / distance);
-			Node1->setPoint(Node1->Force.X + isRepuslive ? (-1) : 1 * F.X, Node1->Force.Y + isRepuslive ? (-1) : 1 * F.Y, true);
-			Node2->setPoint(Node2->Force.X + isRepuslive ? 1 : (-1) * F.X, Node2->Force.Y + isRepuslive ? 1 : (-1) * F.Y, true);
+			Node1->setPoint(Node1->Force.X + (isRepuslive ? (-1) : ( 1)) * F.X, Node1->Force.Y + (isRepuslive ? (-1) : ( 1)) * F.Y, true);
+			Node2->setPoint(Node2->Force.X + (isRepuslive ? ( 1) : (-1)) * F.X, Node2->Force.Y + (isRepuslive ? ( 1) : (-1)) * F.Y, true);
 		}
 	};
+
 	for (auto&& NodeLayout : Layout) NodeLayout->Value->setPoint(0, 0, true);
-	for (auto&& Node1PaIR : Layout) {
-		for (auto&& Node2PaIR : Layout) {
-			if (Node1PaIR->Key != Node2PaIR->Key) {
-				auto Node1 = Node1PaIR->Value;
-				auto Node2 = Node2PaIR->Value;
-				calculateForces(Node1, Node2, _kr, true);
-			}
-		}
-	}
-	for (auto&& GraphNode : g->Edges) {
+
+	for (auto&& GraphNode : g->UniquePairs) {
 		auto Node1 = Layout->Lookup(GraphNode->Key.ToString());
-		for (auto&& edge : GraphNode->Value) {
-			for (int neighbor : edge->Value) {
-				auto Node2 = Layout->Lookup(neighbor.ToString());
-				calculateForces(Node1, Node2, _ks, false);
-			}
+		for (int neighbor : GraphNode->Value) {
+			auto Node2 = Layout->Lookup(neighbor.ToString());
+			calculateForces(Node1, Node2, _kr, true);
 		}
 	}
 
-	float MaxDp = 23;
+	for (auto&& GraphNode : g->Pairs) {
+		auto Node1 = Layout->Lookup(GraphNode->Key.ToString());
+		for (int neighbor : GraphNode->Value) {
+			auto Node2 = Layout->Lookup(neighbor.ToString());
+			calculateForces(Node1, Node2, _ks, false);
+		}
+	}
+
 	for (auto&& NodeLayout : Layout) {
 		auto Node = NodeLayout->Value;
 		Point dv = Point(Node->Force.X * _dt, Node->Force.Y * _dt);
 		float dp = dv.X * dv.X + dv.Y * dv.Y;
-		if (dp > MaxDp) dv = Point(dv.X * sqrt(MaxDp / dp), dv.Y * sqrt(MaxDp / dp));
+		if (dp > _maxdp) dv = Point(dv.X * sqrt(_maxdp / dp), dv.Y * sqrt(_maxdp / dp));
 		Node->Position = Point(Node->Position.X + dv.X, Node->Position.Y + dv.Y);
 	}
 }
@@ -212,5 +210,5 @@ void Automata::CanvasRenderer::Board_PointerWheelChanged(Platform::Object^ sende
 	ZoomController->ScaleX = r; ZoomController->ScaleY = r;
 	this->Board->Width = w / min(r,1);
 	this->Board->Height = h / min(r, 1);
-	float nw = this->Board->Width, nh = this->Board->Height;
+	e->Handled = true;
 }

@@ -49,6 +49,7 @@ void Automata::node::Initialize()
 	this->shape->Height = this->size;
 	this->shape->Width = this->size;
 	this->Force = Point(0, 0);
+	update();
 }
 
 void Automata::node::update()
@@ -64,7 +65,15 @@ void Automata::node::update()
 		this->shape->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Black);
 		break;
 	case NodeType::StartingAndEndingNode:
-		this->shape->Stroke = dynamic_cast<Brush^>(XamlBindingHelper::ConvertValue(Windows::UI::Xaml::Interop::TypeName(this->shape->Stroke->GetType()), L"<LinearGradientBrush EndPoint='0.5, 1' StartPoint='0.5, 0'>< GradientStop Color = 'Black' /><GradientStop Color = '#FFF51B1B' Offset = '1' /><GradientStop Color = '#FF2E7822' Offset = '0.5' /><GradientStop Color = '#FFAC3D1D' Offset = '0' />< / LinearGradientBrush>"));
+		LinearGradientBrush^ linearStroke = ref new LinearGradientBrush();
+		linearStroke->EndPoint = Point(0.5, 1); linearStroke->StartPoint = Point(0.5, 0);
+		auto stop1 = ref new GradientStop(); stop1->Color = Windows::UI::Colors::Green; stop1->Offset = 0;
+		auto stop2 = ref new GradientStop(); stop2->Color = Windows::UI::Colors::LightGray; stop2->Offset = 0.5;
+		auto stop3 = ref new GradientStop(); stop3->Color = Windows::UI::Colors::Red; stop3->Offset = 1;
+		linearStroke->GradientStops->Append(stop1);
+		linearStroke->GradientStops->Append(stop2);
+		linearStroke->GradientStops->Append(stop3);
+		this->shape->Stroke = linearStroke;
 		break;
 	}
 }
