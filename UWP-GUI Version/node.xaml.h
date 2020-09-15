@@ -40,6 +40,17 @@ namespace Automata
 				moved(this, this->Location);
 			}
 		}
+		void setPoint(float x, float y, bool isForce) {
+			if (!isForce) {
+				this->Location.X = x;
+				this->Location.Y = y;
+				moved(this, this->Location);
+			}
+			else {
+				this->force.X = x;
+				this->force.Y = y;
+			}
+		}
 		property String^ Label {
 			String^ get() { return this->_Label; }
 			void set(String^ v) { this->_Label = v; }

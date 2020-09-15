@@ -35,6 +35,7 @@ namespace Automata
 		GraphManaged^ g;
 		Platform::Collections::Map<String^, node^>^ Layout;
 		IVector<edge^>^ Linkers;
+		ScaleTransform^ ZoomController;
 		float _dt = 1, _l = 50, _r = 0.005, _kr = 6900, _ks = _kr / (_r * pow(_l, 3));
 		bool isRendered = false;
 		void initialize();
@@ -45,5 +46,6 @@ namespace Automata
 		void OnEdgemoved(Automata::edge ^ sender, Windows::Foundation::Point newPos);
 		void Rslider_ValueChanged(Platform::Object ^ sender, Windows::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs ^ e);
 		void OnTick(Platform::Object ^ sender, Platform::Object ^ args);
+		void Board_PointerWheelChanged(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 	};
 }

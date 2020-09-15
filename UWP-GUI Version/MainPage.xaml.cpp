@@ -186,3 +186,11 @@ void Automata::MainPage::RenderButton_Click(Platform::Object^ sender, Windows::U
 }
 
 
+
+
+void Automata::MainPage::Holder_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
+{
+	auto castedSender = dynamic_cast<FlipView^>(sender);
+	this->InputBoard->Width = castedSender->ActualWidth; this->InputBoard->Height = castedSender->ActualHeight;
+	this->ResultBoard->Width = castedSender->ActualWidth; this->ResultBoard->Height = castedSender->ActualHeight;
+}

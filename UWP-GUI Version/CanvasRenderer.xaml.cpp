@@ -31,6 +31,11 @@ CanvasRenderer::CanvasRenderer()
 
 void Automata::CanvasRenderer::InitializeComponent2()
 {
+	this->Board->Width = this->Width; this->Board->Height = this->Height;
+	ZoomController = ref new ScaleTransform();
+	this->Board->RenderTransform = ZoomController;
+	ZoomController->CenterX = 0; ZoomController->CenterY = 0;
+	ZoomController->ScaleX = 1; ZoomController->ScaleY = 1;
 	this->timer = ref new DispatcherTimer();
 	int timeDelay = 1;
 	TimeSpan ts = TimeSpan();
@@ -91,18 +96,19 @@ void Automata::CanvasRenderer::initialize()
 void Automata::CanvasRenderer::process()
 {
 	float L = _l;
-	auto calculateForces = [L](node^ Node1, node^ Node2, float forceCoeff, bool isRepuslive) {
+	auto calculateForces = [L](node^& Node1, node^& Node2, float forceCoeff, bool isRepuslive) {
 		Point dv = Point(Node2->Position.X - Node1->Position.X, Node2->Position.Y - Node1->Position.Y);
 		if (dv.X != 0 || dv.Y != 0) {
 			double distance = sqrt(dv.X * dv.X + dv.Y * dv.Y);
 			float f = (isRepuslive ? (forceCoeff / (pow(L * distance, 2))) : (forceCoeff * (distance - L) / L));
 			Point F = Point((float)f * dv.X / distance, (float)f * dv.Y / distance);
-			Node1->Force = Point(Node1->Force.X + isRepuslive ? (-1) : 1 * F.X, Node1->Force.Y + isRepuslive ? (-1) : 1 * F.Y);
-			Node2->Force = Point(Node2->Force.X + isRepuslive ? 1 : (-1) * F.X, Node2->Force.Y + isRepuslive ? 1 : (-1) * F.Y);
+			Node1->setPoint(Node1->Force.X + isRepuslive ? (-1) : 1 * F.X, Node1->Force.Y + isRepuslive ? (-1) : 1 * F.Y, true);
+			Node2->setPoint(Node2->Force.X + isRepuslive ? 1 : (-1) * F.X, Node2->Force.Y + isRepuslive ? 1 : (-1) * F.Y, true);
 		}
 	};
-	for (auto Node1PaIR : Layout) {
-		for (auto Node2PaIR : Layout) {
+	for (auto&& NodeLayout : Layout) NodeLayout->Value->setPoint(0, 0, true);
+	for (auto&& Node1PaIR : Layout) {
+		for (auto&& Node2PaIR : Layout) {
 			if (Node1PaIR->Key != Node2PaIR->Key) {
 				auto Node1 = Node1PaIR->Value;
 				auto Node2 = Node2PaIR->Value;
@@ -110,9 +116,9 @@ void Automata::CanvasRenderer::process()
 			}
 		}
 	}
-	for (auto GraphNode : g->Edges) {
+	for (auto&& GraphNode : g->Edges) {
 		auto Node1 = Layout->Lookup(GraphNode->Key.ToString());
-		for (auto edge : GraphNode->Value) {
+		for (auto&& edge : GraphNode->Value) {
 			for (int neighbor : edge->Value) {
 				auto Node2 = Layout->Lookup(neighbor.ToString());
 				calculateForces(Node1, Node2, _ks, false);
@@ -121,7 +127,7 @@ void Automata::CanvasRenderer::process()
 	}
 
 	float MaxDp = 23;
-	for (auto NodeLayout : Layout) {
+	for (auto&& NodeLayout : Layout) {
 		auto Node = NodeLayout->Value;
 		Point dv = Point(Node->Force.X * _dt, Node->Force.Y * _dt);
 		float dp = dv.X * dv.X + dv.Y * dv.Y;
@@ -194,4 +200,17 @@ void Automata::CanvasRenderer::Rslider_ValueChanged(Platform::Object^ sender, Wi
 void Automata::CanvasRenderer::OnTick(Platform::Object^ sender, Platform::Object^ args)
 {
 	process();
+}
+
+
+void Automata::CanvasRenderer::Board_PointerWheelChanged(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	bool isZoom = e->GetCurrentPoint(this)->Properties->MouseWheelDelta > 0;
+	float scaleRatio = 0.023;
+	float w = this->Width, h = this->Height;
+	float r = max(0.01,ZoomController->ScaleX + (isZoom ? (-1.0) : 1.0) * scaleRatio);
+	ZoomController->ScaleX = r; ZoomController->ScaleY = r;
+	this->Board->Width = w / min(r,1);
+	this->Board->Height = h / min(r, 1);
+	float nw = this->Board->Width, nh = this->Board->Height;
 }

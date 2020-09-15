@@ -55,5 +55,6 @@
     <Page Include="node.xaml" />
     <Page Include="edge.xaml" />
     <Page Include="CanvasRenderer.xaml" />
+    <Page Include="BlankPage.xaml" />
   </ItemGroup>
 </Project>
