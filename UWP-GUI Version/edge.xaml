@@ -8,7 +8,7 @@
     mc:Ignorable="d">
 
     <Grid>
-        <Line x:Name="InnerLine" X1="0" Y1="0" X2="0" Y2="0" Stroke="Black" Fill="Black" StrokeThickness="5" PointerEntered="InnerLine_PointerEntered" PointerExited="InnerLine_PointerExited"/>
+        <Path x:Name="InnerLine" Stroke="Black" StrokeThickness="5" PointerEntered="InnerLine_PointerEntered" PointerExited="InnerLine_PointerExited"/>
         <TextBox x:Name="Label" IsReadOnly="True" Text="test" Visibility="Collapsed" Foreground="Black" SelectionChanged="Label_SelectionChanged" Background="White" BorderBrush="Transparent" Width="40" Height="30" VerticalAlignment="Top" HorizontalAlignment="Left"/>
     </Grid>
 </UserControl>

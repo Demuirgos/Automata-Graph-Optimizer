@@ -193,6 +193,7 @@ void Automata::CanvasRenderer::OnEdgemoved(Automata::edge^ sender, Windows::Foun
 void Automata::CanvasRenderer::Rslider_ValueChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs^ e)
 {
 	_r = dynamic_cast<Slider^>(sender)->Value;// this->Rslider->Value;
+	_ks = _kr / (_r * pow(_l, 3));
 }
 
 void Automata::CanvasRenderer::OnTick(Platform::Object^ sender, Platform::Object^ args)
