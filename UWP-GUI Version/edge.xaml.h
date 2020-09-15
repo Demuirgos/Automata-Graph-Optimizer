@@ -50,9 +50,6 @@ namespace Automata
 		node^ end;
 		String^ weight;
 		void update();
-		void InnerLine_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 		void Onmoved(node^ sender,Windows::Foundation::Point newPos);
-		void InnerLine_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
-		void Label_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 	};
 }

@@ -30,7 +30,7 @@ edge::edge(node^ start, node^ end, String^ weight)
 	this->weight = weight;
 	this->start->moved += ref new Automata::positionChanged(this, &Automata::edge::Onmoved);
 	this->end->moved += ref new Automata::positionChanged(this, &Automata::edge::Onmoved);
-	this->Label->Text = weight;
+	this->Label->Content = weight;
 	//        <Path Stroke="Black" Data="M 5,10 A 15,15 0 1 1 20,10" StrokeThickness="5" />
 
 }
@@ -49,26 +49,9 @@ void Automata::edge::update()
 	this->Label->Margin = Thickness(((this->End.X + this->Start.X)/2)- this->Start.X + 10, ((this->End.Y + this->Start.Y) / 2) - this->Start.Y,0,0);
 }
 
-void Automata::edge::InnerLine_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
-{
-	this->Label->Visibility == Windows::UI::Xaml::Visibility::Visible;
-}
-
-
 void Automata::edge::Onmoved(node^ sender,Windows::Foundation::Point newPos)
 {
 	update();
 	moved(this, this->Start);
 }
 
-
-void Automata::edge::InnerLine_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
-{
-	this->Label->Visibility == Windows::UI::Xaml::Visibility::Collapsed;
-}
-
-
-void Automata::edge::Label_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
-{
-
-}

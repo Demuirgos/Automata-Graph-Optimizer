@@ -195,6 +195,9 @@
     <ClInclude Include="edge.xaml.h">
       <DependentUpon>edge.xaml</DependentUpon>
     </ClInclude>
+    <ClInclude Include="EditPage.xaml.h">
+      <DependentUpon>EditPage.xaml</DependentUpon>
+    </ClInclude>
     <ClInclude Include="GraphManaged.h" />
     <ClInclude Include="Graphs.h" />
     <ClInclude Include="node.xaml.h">
@@ -216,6 +219,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="edge.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="EditPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainPage.xaml">
@@ -255,6 +261,9 @@
     </ClCompile>
     <ClCompile Include="edge.xaml.cpp">
       <DependentUpon>edge.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="EditPage.xaml.cpp">
+      <DependentUpon>EditPage.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="GraphManaged.cpp" />
     <ClCompile Include="MainPage.xaml.cpp">
