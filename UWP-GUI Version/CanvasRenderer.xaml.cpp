@@ -75,6 +75,17 @@ void Automata::CanvasRenderer::clear()
 void Automata::CanvasRenderer::initialize()
 {
 	int j = 0;
+	auto getColor = [=](int size, int i) {
+		int step = 256 / size;
+		int index = i + 1;
+		SolidColorBrush^ brush = ref new SolidColorBrush();
+		Windows::UI::Color* color = new Windows::UI::Color();
+		color->R = (i % 16 * 16)/4;
+		color->G = (i % 8 * 32)/4;
+		color->B = (i % 4 * 64)/4;
+		color->A = 255; brush->Color = *color;
+		return brush;
+	};
 	for (int nodePair : g->Nodes) {
 		bool isEnd = g->Boundaries->Lookup(nodePair) >= 2;
 		bool isStart = (g->Boundaries->Lookup(nodePair) == 1 || g->Boundaries->Lookup(nodePair) == 3);
@@ -91,6 +102,10 @@ void Automata::CanvasRenderer::initialize()
 			}
 		}
 	}
+	int i = 0;
+	for (edge^ edg : Linkers) {
+		edg->Color = getColor(Linkers->Size, i++);
+	}
 }
 
 void Automata::CanvasRenderer::process()
@@ -102,18 +117,20 @@ void Automata::CanvasRenderer::process()
 			double distance = sqrt(dv.X * dv.X + dv.Y * dv.Y);
 			float f = (isRepuslive ? (forceCoeff / (pow(L * distance, 2))) : (forceCoeff * (distance - L) / L));
 			Point F = Point((float)f * dv.X / distance, (float)f * dv.Y / distance);
-			Node1->setPoint(Node1->Force.X + (isRepuslive ? (-1) : ( 1)) * F.X, Node1->Force.Y + (isRepuslive ? (-1) : ( 1)) * F.Y, true);
-			Node2->setPoint(Node2->Force.X + (isRepuslive ? ( 1) : (-1)) * F.X, Node2->Force.Y + (isRepuslive ? ( 1) : (-1)) * F.Y, true);
+			Node1->setPoint(Node1->Force.X + (isRepuslive ? (-1000) : ( 1)) * F.X, Node1->Force.Y + (isRepuslive ? (-1000) : ( 1)) * F.Y, true);
+			Node2->setPoint(Node2->Force.X + (isRepuslive ? ( 1000) : (-1)) * F.X, Node2->Force.Y + (isRepuslive ? ( 1000) : (-1)) * F.Y, true);
 		}
 	};
 
 	for (auto&& NodeLayout : Layout) NodeLayout->Value->setPoint(0, 0, true);
 
-	for (auto&& GraphNode : g->UniquePairs) {
-		auto Node1 = Layout->Lookup(GraphNode->Key.ToString());
-		for (int neighbor : GraphNode->Value) {
-			auto Node2 = Layout->Lookup(neighbor.ToString());
-			calculateForces(Node1, Node2, _kr, true);
+	for (int GraphNode : g->Nodes) {
+		for (int neighbor : g->Nodes) {
+			if (GraphNode != neighbor) {
+				auto Node1 = Layout->Lookup(GraphNode.ToString());
+				auto Node2 = Layout->Lookup(neighbor.ToString());
+				calculateForces(Node1, Node2, _kr, true);
+			}
 		}
 	}
 
@@ -143,7 +160,7 @@ void Automata::CanvasRenderer::update()
 	}
 	for (edge^ Edge : this->Linkers) {
 		this->Board->SetLeft(Edge, Edge->Start.X + Edge->Size / 2);
-		this->Board->SetTop(Edge, Edge->Start.Y + +Edge->Size / 2);
+		this->Board->SetTop(Edge, Edge->Start.Y + Edge->Size / 2);
 		this->Board->SetZIndex(Edge, -1);
 	}
 }
@@ -185,7 +202,7 @@ void Automata::CanvasRenderer::OnEdgemoved(Automata::edge^ sender, Windows::Foun
 {
 	if (this->isRendered) {
 		this->Board->SetLeft(sender, sender->Start.X + sender->Size / 2);
-		this->Board->SetTop(sender, sender->Start.Y + +sender->Size / 2);
+		this->Board->SetTop(sender, sender->Start.Y + sender->Size / 2);
 		this->Board->SetZIndex(sender, -1);
 	}
 }
@@ -193,7 +210,7 @@ void Automata::CanvasRenderer::OnEdgemoved(Automata::edge^ sender, Windows::Foun
 void Automata::CanvasRenderer::Rslider_ValueChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::Primitives::RangeBaseValueChangedEventArgs^ e)
 {
 	_r = dynamic_cast<Slider^>(sender)->Value;// this->Rslider->Value;
-	_ks = _kr / (_r * pow(_l, 3));
+	_ks = _kr / (_r * _l * _l *_l);
 }
 
 void Automata::CanvasRenderer::OnTick(Platform::Object^ sender, Platform::Object^ args)

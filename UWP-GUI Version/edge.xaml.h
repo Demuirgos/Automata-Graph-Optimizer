@@ -11,6 +11,7 @@
 using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
+using namespace Windows::UI;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
@@ -45,7 +46,15 @@ namespace Automata
 		property float Size {
 			float get() { return this->start->Size; }
 		}
+		property Brush^ Color {
+			Brush^ get() { return this->color; }
+			void set(Brush^ c) {
+				this->color= c; 
+				this->InnerLine->Stroke = c;
+			}
+		}
 	private:
+		Brush^ color;
 		node^ start;
 		node^ end;
 		String^ weight;

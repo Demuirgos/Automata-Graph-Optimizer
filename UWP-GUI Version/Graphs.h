@@ -107,7 +107,7 @@ private:
 				}
 			}
 		}
-		makeCopy(graph(result));
+		makeCopy(graph(result,this->start,this->end));
 	}
 	vector<set<int>> minimize(vector<set<int>> classes, vector<vector<int>>& r_signature) {
 		vector<set<int>> new_classes;
@@ -204,12 +204,13 @@ private:
 		this->Processed = r.Processed;
 		this->end_in_file = r.end_in_file;
 	}
-	graph(map<int, map<int, string>> map_in) {
+	graph(map<int, map<int, string>> map_in, set<int> start,map<int, bool> end) {
 		for (map<int, map<int, string>>::iterator i = map_in.begin(); i != map_in.end(); i++) {
 			for (map<int, string>::iterator j = i->second.begin(); j != i->second.end(); j++) {
 				this->insert(i->first, j->first, j->second);
 			}
 		}
+		this->start = start; this->end = end;
 	}
 	graph(vector<vector<set<int>>> arr, vector<string> alph, vector<set<int>> s, map<int, bool> end) {
 		for (int i = 0; i < arr.size(); i++) {
@@ -326,6 +327,7 @@ public:
 		return accumulated;
 	}
 	GraphManaged^ ConvertFromNative() {
+		this->phase_four();
 		Map<int, IMap<String^, IVector<int>^>^>^ result = ref new Map<int, IMap<String^, IVector<int>^>^>();
 		for (auto Node : this->node) {
 			if (!result->HasKey(Node.first)) {

@@ -36,7 +36,7 @@ namespace Automata
 		Platform::Collections::Map<String^, node^>^ Layout;
 		IVector<edge^>^ Linkers;
 		ScaleTransform^ ZoomController;
-		float _dt = 1, _l = 50, _r = 0.005, _kr = 6250, _maxdp= 6900, _ks = _kr / (_r * pow(_l, 3));
+		float _dt = 2, _l = 100, _r = 0.005, _kr = 10000, _maxdp= 10000, _ks = _kr / (_r * pow(_l, 3));
 		bool isRendered = false;
 		void initialize();
 		void process();

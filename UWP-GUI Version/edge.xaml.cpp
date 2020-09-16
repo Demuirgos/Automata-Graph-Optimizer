@@ -40,9 +40,9 @@ void Automata::edge::update()
 {
 	String^ path = "";
 	if(start->Label!=end->Label)
-		path = "M  0, 0 A 15, 15 0 1 1" +  (end->Position.X - start->Position.X).ToString() + "," + (end->Position.Y - start->Position.Y).ToString() ;
+		path = "M  0, 0 A 1, 1 0 1 1 " +  (end->Position.X - start->Position.X).ToString() + "," + (end->Position.Y - start->Position.Y).ToString() ;
 	else
-		path = "M 5,10 A 15,15 0 1 1 20,10";
+		path = "M 0,5 A 15,15 0 1 1 5,5";
 	Geometry^ geo = ref new PathGeometry();
 	geo = dynamic_cast<Geometry^>(XamlBindingHelper::ConvertValue(Windows::UI::Xaml::Interop::TypeName(geo->GetType()), path));
 	this->InnerLine->Data = geo;
