@@ -39,8 +39,11 @@ edge::edge(node^ start, node^ end, String^ weight)
 void Automata::edge::update()
 {
 	String^ path = "";
-	if(start->Label!=end->Label)
-		path = "M  0, 0 A 1, 1 0 1 1 " +  (end->Position.X - start->Position.X).ToString() + "," + (end->Position.Y - start->Position.Y).ToString() ;
+	if (start->Label != end->Label) {
+		float x = (end->Position.X - start->Position.X);
+		float y = (end->Position.Y - start->Position.Y);
+		path = "M  0, 0 Q " + ((y > 0.2 || y < -0.2)?0:x/2).ToString() + "," + ((y>0.2 || y<-0.2)?y/2:x/4).ToString() + " " + x.ToString() + "," + y.ToString();
+	}
 	else
 		path = "M 0,5 A 15,15 0 1 1 5,5";
 	Geometry^ geo = ref new PathGeometry();

@@ -38,6 +38,17 @@ public:
 };
 class graph {
 private:
+	void getNodes(map<int,bool>& processed,int i) {
+		if (!processed[i]) {
+			processed[i] = true;
+			for (auto edge : this->node[i]) {
+				for (auto dest : edge.second) {
+					this->nodes.insert(dest);
+					getNodes(processed, dest);
+				}
+			}
+		}
+	}
 	set<int> extract_closure(int i, map<int, set<int>>& closures) {
 		if (closures.find(i) == closures.end() && this->node.find(i) != this->node.end()) {
 			closures[i].insert(i);
@@ -66,6 +77,9 @@ private:
 					}
 				}
 			}
+		}
+		for (auto i = this->node.begin(); i != this->node.end(); i++) {
+			i->second.erase("0");
 		}
 	}
 	void determine(vector<vector<set<int>>>& arr, vector<set<int>>& memo, set<int> s) {
@@ -152,28 +166,22 @@ private:
 		sregex_token_iterator start{str.begin(), str.end(), r, -1 },end;
 		return vector<string>(start, end);
 	}
-	bool getTrapStates(int n,set<int>& isTrap, set<int>& p) {
-		if (p.find(n) == p.end()) {
-			p.insert(n);
-			set<int> dest;
-			for (map<string, set<int>>::iterator it = this->node[n].begin(); it != this->node[n].end(); it++) {
-				for (auto d : it->second) {
-					dest.insert(d);
-				}
+	void getRidTrapStates() {
+		map<int, bool> processed;
+		for (auto s : this->start) {
+			this->nodes.insert(s);
+			getNodes(processed, s);
+		}
+	}
+	void CleanInner() {
+		set<int> ToBeDeleted;
+		for (auto Node : this->node) {
+			if (this->nodes.find(Node.first)==this->nodes.end()) {
+				ToBeDeleted.insert(Node.first);
 			}
-			bool isTrapNode = true;
-			if (dest.size() == 0 && this->end[n]) return !isTrapNode;
-			if (dest.size() == 0 && !this->end[n]) return isTrapNode;
-			if(dest.size()>0) {
-				for (auto d : dest) {
-					if (d != n && isTrap.find(d)==isTrap.end()) {
-						auto isDestTrap = this->getTrapStates(d, isTrap, p);
-						isTrapNode &= isDestTrap;
-					}
-				}
-			}
-			if (isTrapNode) isTrap.insert(n);
-			return isTrapNode;
+		}
+		for (auto node : ToBeDeleted) {
+			this->node.erase(node);
 		}
 	}
 	void write(int i, String^& accumulated) {
@@ -181,14 +189,12 @@ private:
 			this->Processed[i] = true;
 			for (map<string, set<int>>::iterator j = this->node[i].begin(); j != this->node[i].end(); j++) {
 				for (auto d : j->second) {
-					if (this->nodes.find(d) != this->nodes.end()) {
-						accumulated += i.ToString() + "->" + d.ToString() + " [label=\"" + Methods::FromCppString(j->first) + "\"];\n";
-						if (this->end[i]) {
-							accumulated += i.ToString() + "->" + "e;\n";
-							this->end[i] = false;
-						}
-						write(d, accumulated);
+					accumulated += i.ToString() + "->" + d.ToString() + " [label=\"" + Methods::FromCppString(j->first) + "\"];\n";
+					if (this->end[i]) {
+						accumulated += i.ToString() + "->" + "e;\n";
+						this->end[i] = false;
 					}
+					write(d, accumulated);
 				}
 			}
 		}
@@ -211,8 +217,9 @@ private:
 			}
 		}
 		this->start = start; this->end = end;
+		this->Clean();
 	}
-	graph(vector<vector<set<int>>> arr, vector<string> alph, vector<set<int>> s, map<int, bool> end) {
+	graph(vector<vector<set<int>>>& arr, vector<string>& alph, vector<set<int>>& s, map<int, bool>& end) {
 		for (int i = 0; i < arr.size(); i++) {
 			for (int j = 0; j < arr[0].size(); j++) {
 				for (int f = 0; f < s.size(); f++) {
@@ -230,8 +237,9 @@ private:
 			}
 		}
 		this->start.insert(0);
+		this->Clean();
 	}
-	graph(vector<set<int>> classes, vector<vector<int>> signatures, vector<string> lang, set<int> old_s) {
+	graph(vector<set<int>>& classes, vector<vector<int>>& signatures, vector<string>& lang, set<int>& old_s) {
 		for (int i = 0; i < classes.size(); i++) {
 			for (int j = 0; j < lang.size(); j++) {
 				if (signatures[i][j] != -1) {
@@ -243,6 +251,7 @@ private:
 
 			}
 		}
+		this->Clean();
 	}
 public:
 	graph(){}
@@ -257,7 +266,7 @@ public:
 		this->Processed = r.Processed;
 		this->end_in_file = r.end_in_file;
 	}
-	graph(string bufferIn) {
+	graph(string& bufferIn) {
 		bool firstLine = 1;
 		this->start_in_file=false;
 		this->end_in_file=false;
@@ -293,7 +302,7 @@ public:
 			firstLine = 0;
 		}
 	}
-	void insert(int s, int f, string a) {
+	void insert(int s, int f, string& a) {
 		this->node[s][a].insert(f);
 		this->Processed[s] = false;
 		this->nodes.insert(s); this->nodes.insert(f);
@@ -306,14 +315,9 @@ public:
 		//this->phase_four();
 	}
 	void Clean() {
-		set<int> processing;
-		set<int> traps;
-		for (auto i : this->start) {
-			this->getTrapStates(i, traps, processing);
-		}
-		for (auto trap : traps) {
-			this->nodes.erase(trap);
-		}
+		this->nodes.clear();
+		this->getRidTrapStates();
+		this->CleanInner();
 	}
 	String^ ToString() {
 		String^ accumulated = "";
@@ -327,6 +331,7 @@ public:
 		return accumulated;
 	}
 	GraphManaged^ ConvertFromNative() {
+		this->Clean();
 		this->phase_four();
 		Map<int, IMap<String^, IVector<int>^>^>^ result = ref new Map<int, IMap<String^, IVector<int>^>^>();
 		for (auto Node : this->node) {

@@ -117,8 +117,8 @@ void Automata::CanvasRenderer::process()
 			double distance = sqrt(dv.X * dv.X + dv.Y * dv.Y);
 			float f = (isRepuslive ? (forceCoeff / (pow(L * distance, 2))) : (forceCoeff * (distance - L) / L));
 			Point F = Point((float)f * dv.X / distance, (float)f * dv.Y / distance);
-			Node1->setPoint(Node1->Force.X + (isRepuslive ? (-1000) : ( 1)) * F.X, Node1->Force.Y + (isRepuslive ? (-1000) : ( 1)) * F.Y, true);
-			Node2->setPoint(Node2->Force.X + (isRepuslive ? ( 1000) : (-1)) * F.X, Node2->Force.Y + (isRepuslive ? ( 1000) : (-1)) * F.Y, true);
+			Node1->setPoint(Node1->Force.X + (isRepuslive ? (-10000) : ( 1)) * F.X, Node1->Force.Y + (isRepuslive ? (-10000) : ( 1)) * F.Y, true);
+			Node2->setPoint(Node2->Force.X + (isRepuslive ? ( 10000) : (-1)) * F.X, Node2->Force.Y + (isRepuslive ? ( 10000) : (-1)) * F.Y, true);
 		}
 	};
 
