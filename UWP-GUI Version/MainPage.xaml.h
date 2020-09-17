@@ -42,7 +42,6 @@ namespace Automata
 		graph g;
 		graph r;
 		DispatcherTimer^ timer;
-		bool isNodesRendered = false,isEdgesRendered=false;
 		void getRender();
 		void parseText();
 		void fillUnderlayingData();

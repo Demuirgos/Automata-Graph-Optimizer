@@ -18,18 +18,20 @@
             <RowDefinition Height="115*"/>
         </Grid.RowDefinitions>
         <StackPanel  Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="10,5,0,0" Text="Path : " TextWrapping="Wrap" VerticalAlignment="Top" Height="30" Width="39" RenderTransformOrigin="0,0" Grid.Row="1"/>
-                <Button x:Name="openPath" Content="Chose" Margin="5,2.5,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="35" Width="80" Click="openPath_Click" Grid.Row="1" HorizontalAlignment="Center"/>
-                <Button x:Name="InsertText" Content="&#9654;" Margin="5,2.5,0,0"  VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="35" Width="45" Click="InsertText_Click">
-                    <FlyoutBase.AttachedFlyout >
-                        <Flyout Placement="RightEdgeAlignedTop">
-                            <TextBox x:Name="TextInput" Width="400" Height="500" Header="Graph Text : " TextChanged="TextInput_TextChanged" AcceptsReturn="True"/>
-                        </Flyout>
-                    </FlyoutBase.AttachedFlyout>
-                </Button>
+            <StackPanel x:Name="OpenFile">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="10,5,0,0" Text="Path : " TextWrapping="Wrap" VerticalAlignment="Top" Height="30" Width="39" RenderTransformOrigin="0,0" Grid.Row="1"/>
+                    <Button x:Name="openPath" Content="Chose" Margin="5,2.5,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="35" Width="80" Click="openPath_Click" Grid.Row="1" HorizontalAlignment="Center"/>
+                    <Button x:Name="InsertText" Content="&#9654;" Margin="5,2.5,0,0"  VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="35" Width="45" Click="InsertText_Click">
+                        <FlyoutBase.AttachedFlyout >
+                            <Flyout Placement="RightEdgeAlignedTop">
+                                <TextBox x:Name="TextInput" Width="400" Height="500" Header="Graph Text : " TextChanged="TextInput_TextChanged" AcceptsReturn="True"/>
+                            </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+                    </Button>
+                </StackPanel>
+                <TextBox x:Name="pathText" HorizontalAlignment="Left" Margin="10,7,0,0" Grid.Column="0" Text="" TextWrapping="Wrap" Width="180" Height="32" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1"/>
             </StackPanel>
-            <TextBox x:Name="pathText" HorizontalAlignment="Left" Margin="10,7,0,0" Grid.Column="0" Text="" TextWrapping="Wrap" Width="180" Height="32" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1"/>
             <ToggleSwitch x:Name="E_NFA_to_NFA" Header="E_NFA_to_NFA" Margin="0,10,0,0" VerticalAlignment="Top" Width="154" Toggled="E_NFA_to_NFA_Toggled" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" HorizontalAlignment="Center"/>
             <ToggleSwitch x:Name="NFA_to_DFA" Header="NFA_to_DFA" Margin="0,0,0,0" VerticalAlignment="Top" Width="154" Toggled="NFA_to_DFA_Toggled" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" HorizontalAlignment="Center"/>
             <ToggleSwitch x:Name="DFA_to_minDFA" Header="DFA_to_minDFA" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" Width="154" HorizontalAlignment="Center"/>
@@ -69,12 +71,12 @@
                     <FlipView Margin="10,5,10,10">
                         <FlipViewItem >
                             <Grid>
-                                <TextBox x:Name="ResultText" Header="Result Graph : " AcceptsReturn="True" IsReadOnly="True"/>
+                                <TextBox x:Name="InputText" Header="Input Graph : " AcceptsReturn="True" TextChanged="InputText_TextChanged"/>
                             </Grid>
                         </FlipViewItem>
                         <FlipViewItem >
                             <Grid>
-                                <TextBox x:Name="InputText" Header="Input Graph : " AcceptsReturn="True" TextChanged="InputText_TextChanged"/>
+                                <TextBox x:Name="ResultText" Header="Result Graph : " AcceptsReturn="True" IsReadOnly="True"/>
                             </Grid>
                         </FlipViewItem>
                     </FlipView>
@@ -82,7 +84,7 @@
             </PivotItem>
             <PivotItem Header="Creation Mode">
                 <Grid>
-                    <FlipView Margin="10,5,10,10"/>
+                    <local:EditPage/>
                 </Grid>
             </PivotItem>
         </Pivot>

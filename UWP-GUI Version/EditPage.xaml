@@ -8,47 +8,67 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <SplitView>
+    <Grid >
+        <SplitView x:Name="editPage" OpenPaneLength="300"  DisplayMode="CompactOverlay" PaneOpening="editPage_PaneOpening" PaneClosing="SplitView_PaneClosing">
             <SplitView.Pane>
-                <ListView Header="ToolBox" Margin="5,100,5,0" VerticalAlignment="Top" Height="610">
-                    <ListViewItem>
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel Margin="10">
-                                <TextBlock Text="Node :"/>
-                                <Ellipse Width="100" Height="100" StrokeThickness="10" Stroke="Black"/>
-                                <TextBox x:Name="Label" Header="Label : " Width="150"/>
-                            </StackPanel>
-                            <StackPanel Margin="10" Width="153">
-                                <StackPanel>
-                                    <ToggleSwitch x:Name="isStart" Header="Start : "/>
-                                    <ToggleSwitch x:Name="isEnd" Header="End : "/>
+                <Grid Height="{Binding ElementName=editPage,Path=Height}" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                    <Button x:Name="OpenPane" VerticalAlignment="Top" HorizontalAlignment="Left" Width="50" Click="OpenPane_Click">
+                        <Button.Background>
+                            <SolidColorBrush Color="#33FFFFFF" Opacity="0.75"/>
+                        </Button.Background>
+                        <SymbolIcon Symbol="Bookmarks" />
+                    </Button>
+                    <Grid x:Name="ToolBox" Margin="0,50">
+                        <ListView  Header="ToolBox" Height="500" VerticalAlignment="Top" >
+                            <ListViewItem>
+                                <StackPanel Orientation="Horizontal">
+                                    <StackPanel Margin="10">
+                                        <TextBlock Text="Node :"/>
+                                        <Grid Background="White">
+                                            <Ellipse x:Name="NodePrev" Margin="5" Width="100" Height="100" StrokeThickness="10" Stroke="Black"/>
+                                        </Grid>
+                                        <TextBox x:Name="NodeLabel" Header="Label : " Width="150"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="10" Width="153">
+                                        <StackPanel>
+                                            <ToggleSwitch x:Name="isStart" Header="Start : "/>
+                                            <ToggleSwitch x:Name="isEnd" Header="End : "/>
+                                            <AppBarButton x:Name="AddNode" Icon="Add" Label="Add" Click="AddNode_Click"/>
+                                        </StackPanel>
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
-                        </StackPanel>
-                    </ListViewItem>
-                    <ListViewItem>
-                        <StackPanel>
-                            <TextBlock Text="Edge :"/>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBox Header="Label" Width="150"/>
-                                <Button VerticalAlignment="Bottom" Margin="5,0,0,0">
-                                    <SymbolIcon Symbol="Add"/>
-                                </Button>
-                            </StackPanel>
-                        </StackPanel>
-                    </ListViewItem>
-                    <ListViewItem>
-                        <StackPanel>
-                            <TextBlock Text="Layout Fragment :"/>
-                            <TextBox Width="275" Height="290"/>
-                        </StackPanel>
-                    </ListViewItem>
-                </ListView>
+                            </ListViewItem>
+                            <MenuFlyoutSeparator Width="300"/>
+                            <ListViewItem>
+                                <StackPanel>
+                                    <TextBlock Text="Edge :"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBox x:Name="EdgeLabel" Header="Label" Width="230"/>
+                                        <Button x:Name="AddEdge" VerticalAlignment="Bottom" Margin="5,0,0,0" Click="AddEdge_Click">
+                                            <SymbolIcon Symbol="Add"/>
+                                        </Button>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ComboBox x:Name="EdgeStart" Header="Start" Width="130" Margin="5"/>
+                                        <ComboBox x:Name="EdgeEnd" Header="End :" Width="130"  Margin="5"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ListViewItem>
+                            <MenuFlyoutSeparator Width="300"/>
+                        </ListView>
+                    </Grid>
+                </Grid>
             </SplitView.Pane>
             <Grid>
-                <local:CanvasRenderer x:Name="Board" RequestedTheme="Light" Background="White" Margin="20,20,20,0" Height="450" VerticalAlignment="Top"/>
-                <RichEditBox Margin="20,475,20,10"/>
+                <Grid>
+                    <SplitView Height="400" VerticalAlignment="Top">
+                        <SplitView.Pane>
+                            <local:CanvasRenderer x:Name="Result" RequestedTheme="Light" Background="White" Height="400" VerticalAlignment="Top"/>
+                        </SplitView.Pane>
+                        <local:CanvasRenderer x:Name="Board"  RequestedTheme="Light" Background="White" Height="400" VerticalAlignment="Top"/>
+                    </SplitView>
+                    <RichEditBox x:Name="TextInput" Margin="0,402,0,25" RequestedTheme="Light"/>
+                </Grid>
                 <AppBar VerticalAlignment="Bottom"/>
             </Grid>
         </SplitView>

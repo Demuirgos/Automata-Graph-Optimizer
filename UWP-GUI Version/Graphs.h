@@ -38,6 +38,25 @@ public:
 };
 class graph {
 private:
+	//claening procedures
+	void getRidTrapStates() {
+		map<int, bool> processed;
+		for (auto s : this->start) {
+			this->nodes.insert(s);
+			getNodes(processed, s);
+		}
+	}
+	void CleanInner() {
+		set<int> ToBeDeleted;
+		for (auto Node : this->node) {
+			if (this->nodes.find(Node.first) == this->nodes.end()) {
+				ToBeDeleted.insert(Node.first);
+			}
+		}
+		for (auto node : ToBeDeleted) {
+			this->node.erase(node);
+		}
+	}
 	void getNodes(map<int,bool>& processed,int i) {
 		if (!processed[i]) {
 			processed[i] = true;
@@ -49,6 +68,7 @@ private:
 			}
 		}
 	}
+	//procedures used in phases
 	set<int> extract_closure(int i, map<int, set<int>>& closures) {
 		if (closures.find(i) == closures.end() && this->node.find(i) != this->node.end()) {
 			closures[i].insert(i);
@@ -63,24 +83,6 @@ private:
 			}
 		}
 		return closures[i];
-	}
-	void phase_one() {
-		map<int, set<int>> closures;
-		for (map<int, map<string, set<int>>>::iterator i = this->node.begin(); i != this->node.end(); i++) {
-			extract_closure(i->first, closures);
-		}
-		for (map<int, set<int>>::iterator i = closures.begin(); i != closures.end(); i++) {
-			for (auto j : i->second) {
-				for (map<string, set<int>>::iterator k = this->node[j].begin(); k != this->node[j].end(); k++) {
-					for (auto m : k->second) {
-						this->node[i->first][k->first].insert(m);
-					}
-				}
-			}
-		}
-		for (auto i = this->node.begin(); i != this->node.end(); i++) {
-			i->second.erase("0");
-		}
 	}
 	void determine(vector<vector<set<int>>>& arr, vector<set<int>>& memo, set<int> s) {
 		if (find(memo.begin(), memo.end(), s) == memo.end()) {
@@ -97,31 +99,6 @@ private:
 			}
 			arr.push_back(v_temp);
 		}
-	}
-	void phase_two() {
-		vector<vector<set<int>>> arr;
-		vector<set<int>> memo;
-		determine(arr, memo, this->start);
-		int j = 0;
-		for (int i = 0; i < this->language.size(); i++) {
-			if (!arr[j][i].empty())
-				determine(arr, memo, arr[j][i]);
-			if (i == this->language.size() - 1 && j < arr.size() - 1) {
-				i = -1; j++;
-			}
-		}
-		makeCopy(graph(arr, this->language, memo, this->end));
-	}
-	void phase_four() {
-		map<int, map<int, string>> result;
-		for (map<int, map<string, set<int>>>::iterator i = this->node.begin(); i != this->node.end(); i++) {
-			for (map<string, set<int>>::iterator j = i->second.begin(); j != i->second.end(); j++) {
-				for (auto k : j->second) {
-					result[i->first][k] += result[i->first][k] == "" ? j->first : "," + j->first;
-				}
-			}
-		}
-		makeCopy(graph(result,this->start,this->end));
 	}
 	vector<set<int>> minimize(vector<set<int>> classes, vector<vector<int>>& r_signature) {
 		vector<set<int>> new_classes;
@@ -149,6 +126,39 @@ private:
 		r_signature = signatures;
 		return new_classes;
 	}
+	//optimization phaes
+	void phase_one() {
+		map<int, set<int>> closures;
+		for (map<int, map<string, set<int>>>::iterator i = this->node.begin(); i != this->node.end(); i++) {
+			extract_closure(i->first, closures);
+		}
+		for (map<int, set<int>>::iterator i = closures.begin(); i != closures.end(); i++) {
+			for (auto j : i->second) {
+				for (map<string, set<int>>::iterator k = this->node[j].begin(); k != this->node[j].end(); k++) {
+					for (auto m : k->second) {
+						this->node[i->first][k->first].insert(m);
+					}
+				}
+			}
+		}
+		for (auto i = this->node.begin(); i != this->node.end(); i++) {
+			i->second.erase("0");
+		}
+	}
+	void phase_two() {
+		vector<vector<set<int>>> arr;
+		vector<set<int>> memo;
+		determine(arr, memo, this->start);
+		int j = 0;
+		for (int i = 0; i < this->language.size(); i++) {
+			if (!arr[j][i].empty())
+				determine(arr, memo, arr[j][i]);
+			if (i == this->language.size() - 1 && j < arr.size() - 1) {
+				i = -1; j++;
+			}
+		}
+		makeCopy(graph(arr, this->language, memo, this->end));
+	}
 	void phase_three() {
 		vector<set<int>> classes(2);
 		vector<vector<int>> signatures;
@@ -159,31 +169,26 @@ private:
 			if (i->second) classes[1].insert(i->first);
 		}
 		while (classes != minimize(classes, signatures))classes = minimize(classes, signatures);
-		makeCopy(graph(classes, signatures, this->language, this->start));
+		makeCopy(graph(classes, signatures, this->language, this->start,this->end));
 	}
+	void phase_four() {
+		map<int, map<int, string>> result;
+		for (map<int, map<string, set<int>>>::iterator i = this->node.begin(); i != this->node.end(); i++) {
+			for (map<string, set<int>>::iterator j = i->second.begin(); j != i->second.end(); j++) {
+				for (auto k : j->second) {
+					result[i->first][k] += result[i->first][k] == "" ? j->first : "," + j->first;
+				}
+			}
+		}
+		makeCopy(graph(result,this->start,this->end));
+	}
+	//parser input splitter
 	vector<string> split(const string& str, string pattern){
 		regex r{ pattern };
 		sregex_token_iterator start{str.begin(), str.end(), r, -1 },end;
 		return vector<string>(start, end);
 	}
-	void getRidTrapStates() {
-		map<int, bool> processed;
-		for (auto s : this->start) {
-			this->nodes.insert(s);
-			getNodes(processed, s);
-		}
-	}
-	void CleanInner() {
-		set<int> ToBeDeleted;
-		for (auto Node : this->node) {
-			if (this->nodes.find(Node.first)==this->nodes.end()) {
-				ToBeDeleted.insert(Node.first);
-			}
-		}
-		for (auto node : ToBeDeleted) {
-			this->node.erase(node);
-		}
-	}
+	//DFS traversal
 	void write(int i, String^& accumulated) {
 		if (!this->Processed[i]) {
 			this->Processed[i] = true;
@@ -199,6 +204,7 @@ private:
 			}
 		}
 	}
+	//private constructor of mutiliation
 	void makeCopy(graph& r) {
 		this->end = r.end;
 		this->start = r.start;
@@ -210,7 +216,7 @@ private:
 		this->Processed = r.Processed;
 		this->end_in_file = r.end_in_file;
 	}
-	graph(map<int, map<int, string>> map_in, set<int> start,map<int, bool> end) {
+	graph(map<int, map<int, string>>& map_in, set<int>& start,map<int, bool>& end) {
 		for (map<int, map<int, string>>::iterator i = map_in.begin(); i != map_in.end(); i++) {
 			for (map<int, string>::iterator j = i->second.begin(); j != i->second.end(); j++) {
 				this->insert(i->first, j->first, j->second);
@@ -239,12 +245,13 @@ private:
 		this->start.insert(0);
 		this->Clean();
 	}
-	graph(vector<set<int>>& classes, vector<vector<int>>& signatures, vector<string>& lang, set<int>& old_s) {
+	graph(vector<set<int>>& classes, vector<vector<int>>& signatures, vector<string>& lang, set<int>& old_s, map<int,bool>& old_e) {
 		for (int i = 0; i < classes.size(); i++) {
 			for (int j = 0; j < lang.size(); j++) {
 				if (signatures[i][j] != -1) {
 					for (auto k : classes[i]) {
 						if (old_s.find(k) != old_s.end()) this->start.insert(i);
+						if (old_e[k]) this->end[k] = true;
 					}
 					this->insert(i, signatures[i][j], lang[j]);
 				}
