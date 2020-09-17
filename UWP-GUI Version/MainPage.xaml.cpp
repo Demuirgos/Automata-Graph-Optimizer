@@ -84,13 +84,13 @@ void Automata::MainPage::getRender()
 {
 	if (this->Holder->SelectedIndex == 0) {
 		this->InputBoard->clear();
-		this->InputBoard->Graph = this->g.ConvertFromNative();
+		this->InputBoard->Graph = graph(this->g).ConvertFromNative();
 		this->InputBoard->start();
 	}
 	else if(this->Holder->SelectedIndex == 1) {
 		optimizeGraph();
 		this->ResultBoard->clear();
-		this->ResultBoard->Graph = this->r.ConvertFromNative();
+		this->ResultBoard->Graph = graph(this->r).ConvertFromNative();
 		this->ResultBoard->start();
 	}
 }
