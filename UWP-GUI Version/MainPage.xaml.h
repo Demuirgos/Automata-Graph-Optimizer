@@ -6,7 +6,7 @@
 #pragma once
 
 #include "MainPage.g.h"
-#include "Graphs.h"
+#include "GraphManaged.h"
 #include "node.xaml.h"
 #include "edge.xaml.h"
 
@@ -39,9 +39,8 @@ namespace Automata
 		MainPage();
 	private:
 		String^ data;
-		graph g;
-		graph r;
-		DispatcherTimer^ timer;
+		GraphManaged^ g;
+		GraphManaged^ r;
 		void getRender();
 		void parseText();
 		void fillUnderlayingData();

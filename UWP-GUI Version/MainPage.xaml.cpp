@@ -33,7 +33,6 @@ MainPage::MainPage()
 	InitializeComponent();
 }
 
-
 void Automata::MainPage::openPath_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	FileOpenPicker^ filePick = ref new FileOpenPicker();
@@ -79,18 +78,17 @@ void Automata::MainPage::NFA_to_DFA_Toggled(Platform::Object^ sender, Windows::U
 	}
 }
 
-
 void Automata::MainPage::getRender()
 {
 	if (this->Holder->SelectedIndex == 0) {
 		this->InputBoard->clear();
-		this->InputBoard->Graph = graph(this->g).ConvertFromNative();
+		this->InputBoard->Graph = ref new GraphManaged(this->g);
 		this->InputBoard->start();
 	}
 	else if(this->Holder->SelectedIndex == 1) {
 		optimizeGraph();
 		this->ResultBoard->clear();
-		this->ResultBoard->Graph = graph(this->r).ConvertFromNative();
+		this->ResultBoard->Graph = ref new GraphManaged(this->r);
 		this->ResultBoard->start();
 	}
 }
@@ -105,28 +103,24 @@ void Automata::MainPage::parseText()
 
 void Automata::MainPage::fillUnderlayingData()
 {
-	this->g = graph(Methods::ToCppString(this->data));
+	this->g = ref new GraphManaged(this->data);
 	Start_slect_grid->Items->Clear();
 	End_slect_grid->Items->Clear();
-	Start_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
-	End_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
-	if (!g.start_in_file)
-		Start_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Visible;
-	for (map<int, map<string, set<int>>>::iterator i = g.node.begin(); i != g.node.end(); i++) {
+	for (int i:this->g->Nodes) {
 		CheckBox^ c = ref new CheckBox();
-		c->Content = "Node :" + i->first.ToString();
-		c->Name = i->first.ToString();
+		c->Content = "Node :" + i.ToString();
+		c->Name = i.ToString();
 		Start_slect_grid->Items->Append(c);
+		if (this->g->isStartNode(i)) c->IsChecked = true;
 		c->Checked += ref new Windows::UI::Xaml::RoutedEventHandler(this, &Automata::MainPage::OnStartChecked);
 		c->Unchecked += ref new Windows::UI::Xaml::RoutedEventHandler(this, &Automata::MainPage::OnStartUnchecked);
 	}
-	if (!g.end_in_file)
-		End_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Visible;
-	for (auto i = g.nodes.begin(); i != g.nodes.end(); i++) {
+	for (int i : this->g->Nodes) {
 		CheckBox^ c = ref new CheckBox();
-		c->Content = "Node :" + (*i).ToString();
-		c->Name = (*i).ToString();
+		c->Content = "Node :" + i.ToString();
+		c->Name = i.ToString();
 		End_slect_grid->Items->Append(c);
+		if (this->g->isEndNode(i)) c->IsChecked = true;
 		c->Checked += ref new Windows::UI::Xaml::RoutedEventHandler(this, &Automata::MainPage::OnEndChecked);
 		c->Unchecked += ref new Windows::UI::Xaml::RoutedEventHandler(this, &Automata::MainPage::OnEndUnchecked);
 	}
@@ -135,7 +129,7 @@ void Automata::MainPage::fillUnderlayingData()
 
 void Automata::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	if (g.start.size() == 0 || g.end.size() == 0) {
+	if (!this->g->isValid()) {
 		ContentDialog^ Warning = ref new ContentDialog();
 		String^ MSGContent = ref new String();
 		MSGContent = "Please chose Starting and Ending Nodes";
@@ -146,7 +140,7 @@ void Automata::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 	}
 	else {
 		optimizeGraph();
-		this->ResultText->Text = this->r.ToString();
+		this->ResultText->Text = this->r->Data;
 	}
 }
 
@@ -162,15 +156,12 @@ void Automata::MainPage::InsertText_Click(Platform::Object^ sender, Windows::UI:
 	FlyoutBase::ShowAttachedFlyout(dynamic_cast<FrameworkElement^>(sender));
 }
 
-
-
 void Automata::MainPage::InputText_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e)
 {
 	this->TextInput->Text = dynamic_cast<TextBox^>(sender)->Text;
 	this->data = dynamic_cast<TextBox^>(sender)->Text;
 	fillUnderlayingData();
 }
-
 
 void Automata::MainPage::RenderButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
@@ -184,32 +175,30 @@ void Automata::MainPage::Holder_SizeChanged(Platform::Object^ sender, Windows::U
 	this->ResultBoard->Width = castedSender->ActualWidth; this->ResultBoard->Height = castedSender->ActualHeight;
 }
 
-
-
 void Automata::MainPage::OnStartChecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	g.start.insert(Methods::StringToInt(((CheckBox^)sender)->Name));
+	this->g->StartNodeSetState(Methods::StringToInt(((CheckBox^)sender)->Name), true);
 }
-
 
 void Automata::MainPage::OnStartUnchecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	g.start.erase(Methods::StringToInt(((CheckBox^)sender)->Name));
+	this->g->StartNodeSetState(Methods::StringToInt(((CheckBox^)sender)->Name), false);
 }
 
 void Automata::MainPage::OnEndChecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	g.end[Methods::StringToInt(((CheckBox^)sender)->Name)]=true;
+	this->g->EndNodeSetState(Methods::StringToInt(((CheckBox^)sender)->Name), true);
 }
 
 void Automata::MainPage::OnEndUnchecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	g.end.erase(Methods::StringToInt(((CheckBox^)sender)->Name));
+	this->g->EndNodeSetState(Methods::StringToInt(((CheckBox^)sender)->Name), false);
+
 }
 
 void Automata::MainPage::optimizeGraph()
 {
 	bool p1 = E_NFA_to_NFA->IsOn, p2 = NFA_to_DFA->IsOn, p3 = DFA_to_minDFA->IsOn;
-	this->r = graph(this->g);
-	this->r.optimize(p1, p2, p3);
+	this->r = ref new GraphManaged(this->g);
+	this->r->Optimise(p1, p2, p3);
 }

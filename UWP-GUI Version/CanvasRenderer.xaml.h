@@ -8,7 +8,7 @@
 #include "CanvasRenderer.g.h"
 #include "node.xaml.h"
 #include "edge.xaml.h"
-#include "Graphs.h"
+#include "GraphManaged.h"
 
 namespace Automata
 {

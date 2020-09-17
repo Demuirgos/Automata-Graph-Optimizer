@@ -19,7 +19,7 @@
                         <SymbolIcon Symbol="Bookmarks" />
                     </Button>
                     <Grid x:Name="ToolBox" Margin="0,50">
-                        <ListView  Header="ToolBox" Height="500" VerticalAlignment="Top" >
+                        <ListView Visibility="Collapsed" Header="ToolBox" Height="500" VerticalAlignment="Top" >
                             <ListViewItem>
                                 <StackPanel Orientation="Horizontal">
                                     <StackPanel Margin="10">

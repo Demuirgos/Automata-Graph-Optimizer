@@ -14,3 +14,4 @@
 #include<utility> 
 #include<algorithm>
 #include "App.xaml.h"
+#include "Helper.h"

@@ -1,41 +1,8 @@
 #pragma once
 #include "pch.h"
-#include<map>
-#include<set>
-#include<string>
-#include<vector>
-#include<regex>
-#include<utility> 
-#include<algorithm>
-#include "GraphManaged.h"
 using namespace Automata;
 using namespace Platform;
 using namespace std;
-class Methods {
-public:
-	static string ToCppString(String^ s) {
-		string result;
-		for (auto i : s) {
-			result += i == L'\r' ? '\n' : i;
-		}
-		return result;
-	}
-	static String^ FromCppString(std::string s) {
-		;
-		std::wstring ws;
-		ws.assign(s.begin(), s.end());
-		String^ result = ref new String(ws.c_str());
-		return result;
-	}
-	static int StringToInt(String^ s) {
-		string new_s = ToCppString(s).c_str();
-		int n = 0;
-		for (int i = 0; i < new_s.size(); i++) {
-			n = n * 10 + new_s[i] - '0';
-		}
-		return n;
-	}
-};
 class graph {
 private:
 	//claening procedures
@@ -275,8 +242,6 @@ public:
 	}
 	graph(string& bufferIn) {
 		bool firstLine = 1;
-		this->start_in_file=false;
-		this->end_in_file=false;
 		vector<string> lines=split(bufferIn, "\n");
 		smatch list;
 		for (auto line : lines) {
@@ -291,7 +256,6 @@ public:
 					this->insert(n[0], n[1], list[3].str());
 				}
 			else if (regex_search(line, list, regex("s|S *-> *([0-9]+)"))) {
-				this->start_in_file = true;
 						int n = 0;
 						for (int i = 0; i < list[1].str().length(); i++) {
 							n = n * 10 + list[1].str()[i] - '0';
@@ -299,7 +263,6 @@ public:
 						this->start.insert(n);
 				}
 			else if (regex_search(line, list, regex("([0-9]+) *-> *f|F"))) {
-				this->end_in_file = true;
 						int n = 0;
 						for (int i = 0; i < list[1].str().length(); i++) {
 							n = n * 10 + list[1].str()[i] - '0';
@@ -326,6 +289,9 @@ public:
 		this->getRidTrapStates();
 		this->CleanInner();
 	}
+	void Compact() {
+		this->phase_four();
+	}
 	String^ ToString() {
 		String^ accumulated = "";
 		this->Clean();
@@ -336,37 +302,6 @@ public:
 		}
 		accumulated += "}";
 		return accumulated;
-	}
-	GraphManaged^ ConvertFromNative() {
-		this->Clean();
-		this->phase_four();
-		Map<int, IMap<String^, IVector<int>^>^>^ result = ref new Map<int, IMap<String^, IVector<int>^>^>();
-		for (auto Node : this->node) {
-			if (!result->HasKey(Node.first)) {
-				result->Insert(Node.first, ref new Map<String^, IVector<int>^>());
-			}
-			for (auto weight : Node.second) {
-				auto Weight = Methods::FromCppString(weight.first);
-				if (!result->Lookup(Node.first)->HasKey(Weight)) {
-					result->Lookup(Node.first)->Insert(Weight,ref new Vector<int>());
-				}
-				for (auto dest : weight.second) {
-					uint32 index;
-					if (!result->Lookup(Node.first)->Lookup(Weight)->IndexOf(dest, &index)) {
-						result->Lookup(Node.first)->Lookup(Weight)->Append(dest);
-					}
-				}
-			}
-		}
-		Vector<int>^ nodes = ref new Vector<int>();
-		for (auto Node : this->nodes) {
-			nodes->Append(Node);
-		}
-		Map<int, int>^ boundaries = ref new Map<int, int>();
-		for (auto Node : this->nodes) {
-			boundaries->Insert(Node, (this->start.find(Node) != this->start.end()) + (this->end[Node] << 1));
-		}
-		return ref new GraphManaged(result,boundaries,nodes);
 	}
 	bool start_in_file;
 	bool end_in_file;
