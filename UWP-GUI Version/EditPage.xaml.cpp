@@ -25,6 +25,7 @@ EditPage::EditPage()
 {
 	InitializeComponent();
 	g = ref new GraphManaged();
+	this->separator->RenderTransform = ref new TranslateTransform();
 	g->ModifiedEvent += ref new Automata::Modified(this, &Automata::EditPage::OnModifiedEvent);
 }
 
@@ -90,4 +91,26 @@ void Automata::EditPage::OpenPane_Click(Platform::Object^ sender, Windows::UI::X
 void Automata::EditPage::editPage_PaneOpening(Windows::UI::Xaml::Controls::SplitView^ sender, Platform::Object^ args)
 {
 	this->ToolBox->Visibility = ::Visibility::Visible;
+}
+
+void Automata::EditPage::separator_ManipulationDelta(Platform::Object^ sender, Windows::UI::Xaml::Input::ManipulationDeltaRoutedEventArgs^ e)
+{
+	float dy = e->Delta.Translation.Y;
+	if (this->BoardsHolder->Height + dy > 0 && this->TextInput->Height - dy > 20) {
+		this->BoardsHolder->Height += dy;
+		this->TextInput->Height -= dy;
+		dynamic_cast<TranslateTransform^>(this->separator->RenderTransform)->Y += dy;
+	}
+}
+
+
+void Automata::EditPage::separator_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	Window::Current->CoreWindow->PointerCursor = ref new Windows::UI::Core::CoreCursor(Windows::UI::Core::CoreCursorType::SizeNorthSouth, 0);
+}
+
+
+void Automata::EditPage::separator_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	Window::Current->CoreWindow->PointerCursor = ref new Windows::UI::Core::CoreCursor(Windows::UI::Core::CoreCursorType::Arrow, 0);
 }
