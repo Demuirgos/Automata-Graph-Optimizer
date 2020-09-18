@@ -6,11 +6,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="50"
-    d:DesignWidth="50">
+    d:DesignHeight="60"
+    d:DesignWidth="60">
 
-    <Grid>
+    <Grid Margin="-5,5,0,0">
+        <Ellipse x:Name="HookRight" Width="10" Height="10" Margin="35,0,0,0" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Fill="AliceBlue" Stroke="Gray" StrokeThickness="2" PointerEntered="Hook_PointerEntered" Opacity="0" PointerPressed="Hook_PointerPressed" PointerExited="Hook_PointerExited" PointerReleased="Hook_PointerReleased"/>
+        <Ellipse x:Name="HookTop" Width="10" Height="10" Margin="2,-35,0,0" Visibility="Visible" VerticalAlignment="Center" Fill="AliceBlue" Stroke="Gray" StrokeThickness="2" PointerEntered="Hook_PointerEntered" PointerPressed="Hook_PointerPressed" Opacity="0" PointerExited="Hook_PointerExited" PointerReleased="Hook_PointerReleased"/>
+        <Ellipse x:Name="HookLeft" Width="10" Height="10" Margin="-35,0,0,0" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Fill="AliceBlue" Stroke="Gray" StrokeThickness="2" PointerEntered="Hook_PointerEntered" Opacity="0" PointerPressed="Hook_PointerPressed" PointerExited="Hook_PointerExited" PointerReleased="Hook_PointerReleased"/>
+        <Ellipse x:Name="HookDown" Width="10" Height="10" Margin="2,35,0,0" Visibility="Visible" VerticalAlignment="Center" Fill="AliceBlue" Stroke="Gray" StrokeThickness="2" PointerEntered="Hook_PointerEntered" PointerPressed="Hook_PointerPressed" Opacity="0" PointerExited="Hook_PointerExited" PointerReleased="Hook_PointerReleased"/>
         <Ellipse x:Name="shape" Width="45" Fill="White" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center" Stroke="Black" StrokeThickness="5"/>
-        <TextBlock x:Name="id" Width="30" Height="20" Margin="0,5,0,0" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Text="0" FontFamily="10" TextAlignment="Center"/>
+        <TextBox x:Name="id" Background="Transparent" BorderBrush="Transparent" IsReadOnly="True" Width="55" Height="50" FontSize="32"  VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Text="0" FontFamily="10" TextAlignment="Center" RenderTransformOrigin="0.5,0.5">
+            <TextBox.RenderTransform>
+                <CompositeTransform ScaleX="0.2" ScaleY="0.2"/>
+            </TextBox.RenderTransform>
+        </TextBox>
     </Grid>
 </UserControl>

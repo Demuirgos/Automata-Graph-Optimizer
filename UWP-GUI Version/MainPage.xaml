@@ -34,7 +34,7 @@
             </StackPanel>
             <ToggleSwitch x:Name="E_NFA_to_NFA" Header="E_NFA_to_NFA" Margin="0,10,0,0" VerticalAlignment="Top" Width="154" Toggled="E_NFA_to_NFA_Toggled" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" HorizontalAlignment="Center"/>
             <ToggleSwitch x:Name="NFA_to_DFA" Header="NFA_to_DFA" Margin="0,0,0,0" VerticalAlignment="Top" Width="154" Toggled="NFA_to_DFA_Toggled" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" HorizontalAlignment="Center"/>
-            <ToggleSwitch x:Name="DFA_to_minDFA" Header="DFA_to_minDFA" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" Width="154" HorizontalAlignment="Center"/>
+            <ToggleSwitch x:Name="DFA_to_minDFA" Header="DFA_to_minDFA" Margin="0,0,0,0" VerticalAlignment="Top" IsEnabled="False" RenderTransformOrigin="0,0" Grid.Row="1" Height="60" Width="154" HorizontalAlignment="Center" Toggled="DFA_to_minDFA_Toggled"/>
             <ListView x:Name="Critical_node" HorizontalAlignment="Center" Height="250" Margin="15,0,0,0" VerticalAlignment="Top" Width="200" ScrollViewer.VerticalScrollBarVisibility="Disabled" RenderTransformOrigin="0,0" Grid.Row="1">
                 <GridView x:Name="Start_slect_grid" Header="Start_Nodes" Height="130" Width="165" Margin="5,0,0,0" Visibility="Collapsed"/>
                 <GridView x:Name="End_slect_grid" Header="End_Nodes" Height="130" Width="165" Margin="5,0,0,0" Visibility="Collapsed"/>
@@ -84,7 +84,7 @@
             </PivotItem>
             <PivotItem Header="Creation Mode">
                 <Grid>
-                    <local:EditPage Width="1200" Margin="-17,0,0,0"/>
+                    <local:EditPage x:Name="EditBoard" Width="1200" Margin="-17,0,0,0"/>
                 </Grid>
             </PivotItem>
         </Pivot>

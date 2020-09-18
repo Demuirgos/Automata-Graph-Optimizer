@@ -12,10 +12,14 @@
 
 namespace Automata
 {
+	public delegate void InsertionEventHandler(int s, int f, String^ w);
+	public delegate void BoundarieEventHandler(int s,bool isEnd,bool isStart);
 	[Windows::Foundation::Metadata::WebHostHidden]
 	public ref class CanvasRenderer sealed
 	{
 	public:
+		event InsertionEventHandler^ EdgeInserted;
+		event BoundarieEventHandler^ NodeStatusUpdated;
 		CanvasRenderer();
 		void InitializeComponent2();
 		CanvasRenderer(GraphManaged ^ g);
@@ -30,17 +34,14 @@ namespace Automata
 		void start(int duration);
 		void stop();
 		void clear();
-		void EnableManagementMode(bool b);
 		void EnableEditingMode(bool b);
 		void update();
 	private:
-		bool isEditModeOn = false;
-		bool isManagModeOn = false;
-		bool dragging = false;
 		DispatcherTimer^ timer;
-
+		bool editMode = false;
 		Windows::UI::Xaml::Input::PointerRoutedEventArgs^ ptrID;
 		bool drawing = false;
+		bool dragging = false;
 		String^ StartNode;
 		String^ EndNode;
 		Shapes::Line^ drawingEdge = ref new Shapes::Line();
@@ -66,9 +67,10 @@ namespace Automata
 		void OnManipulationCompleted(Platform::Object^ sender, Windows::UI::Xaml::Input::ManipulationCompletedRoutedEventArgs^ e);
 		void OnTapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e);
 		void OnRightTapped(Platform::Object^ sender, Windows::UI::Xaml::Input::RightTappedRoutedEventArgs^ e);
-		void Grid_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
-		void OnPointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
-		void OnPointerReleased(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
-		void OnPointerPressed(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Onhooked(Automata::node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Onreleased(Automata::node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Board_PointerMoved(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Onlocked(Automata::node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void OnNodeStatusUpdated(int s, bool isEnd, bool isStart);
 	};
 }

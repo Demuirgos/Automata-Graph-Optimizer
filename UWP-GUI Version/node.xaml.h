@@ -20,6 +20,7 @@ using namespace Windows::UI::Xaml::Navigation;
 namespace Automata
 {
 	public delegate void positionChanged(node^ sender, Point newPos);
+	public delegate void MouseHookPressed(node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 	enum NodeType {
 		StartingNode,
 		EndingNode,
@@ -31,6 +32,9 @@ namespace Automata
 	{
 	public:
 		event positionChanged^ moved;
+		event MouseHookPressed^ hooked;
+		event MouseHookPressed^ released;
+		event MouseHookPressed^ locked;
 		node(String^ label, bool StartFlag, bool EndFlag, Point start);
 		node(String^ label, bool StartFlag, bool EndFlag, float size);
 		void Initialize();
@@ -57,7 +61,10 @@ namespace Automata
 			void set(String^ v) { this->_Label = v; }
 		}
 		property float Size {
-			float get() { return this->size; }
+			float get() { return 60; }
+		}
+		property bool Editing {
+			void set(bool v) { this->editing = v; }
 		}
 		property Point Force {
 			Point get() { return this->force; }
@@ -136,12 +143,15 @@ namespace Automata
 		EventRegistrationToken MouseEnterToken;
 		EventRegistrationToken PointerPressedToken;
 		EventRegistrationToken MouseReleasedToken;
-		
+		bool editing = false;
 		NodeType type = NodeType::OrdinaryNode;
 		Point Location;
 		Point force;
 		String^ _Label = "";
 		float size = 25;
-		float AreaRange = .5f;
-	};
+		void Hook_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Hook_PointerPressed(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Hook_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Hook_PointerReleased(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+};
 }

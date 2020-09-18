@@ -15,9 +15,11 @@ namespace Automata {
 		IMap<int, int>^ boundaries;
 		IVector<int>^ nodes;
 		IMap<int, IMap<String^, IVector<int>^>^>^ edges;
+		IMap<int, IMap<int,String^>^>^ matrix;
 		IMap<int, IVector<int>^>^ getUniquePairs();
 		IMap<int, IVector<int>^>^ getPairs();
 		IVector<int>^ getNodes();
+		IMap<int, IMap<int, String^>^>^ getMatrix();
 		IMap<int, IVector<int>^>^ uniquepairs;
 		IMap<int, IVector<int>^>^ pairs;
 		graph g;
@@ -34,6 +36,9 @@ namespace Automata {
 		void Clear();
 		void insert(int s, int f, String^ w);
 		void Optimise(bool Phase1,bool Phase2, bool Phase3);
+		property IMap<int, IMap<int, String^>^>^ Matrix {
+			IMap<int, IMap<int, String^>^>^ get() { return matrix; }
+		}
 		property IMap<int, IMap<String^, IVector<int>^>^>^ Edges {
 			IMap<int, IMap<String^, IVector<int>^>^>^ get() { return edges; }
 		}
@@ -63,24 +68,25 @@ namespace Automata {
 			}
 			return false;
 		}
-		void EndNodeSetState(int i, bool isEnd) {
+		void NodeSetState(int i, int rank) {
 			if (!this->Boundaries->HasKey(i)) this->Boundaries->Insert(i, 0);
-			int rank = this->Boundaries->Lookup(i);
-			if (isEnd) rank += 2;
-			else rank -= 2;
 			this->Boundaries->Insert(i, rank);
-			if (!isEnd) this->g.end.erase(i);
-			else this->g.end[i] = true;
-			UpdateCompleteEvent(this);
-		}
-		void StartNodeSetState(int i, bool isStart) {
-			if (!this->Boundaries->HasKey(i)) this->Boundaries->Insert(i, 0);
-			int rank = this->Boundaries->Lookup(i);
-			if (isStart) rank += 1;
-			else rank -= 1;
-			this->Boundaries->Insert(i, rank);
-			if (!isStart) this->g.start.erase(i);
-			else this->g.start.insert(i);
+			switch (rank) {
+			case 0:
+				this->g.end.erase(i);
+				this->g.start.erase(i);
+				break;
+			case 1:
+				this->g.end.erase(i);
+				this->g.start.insert(i);
+				break;
+			case 2:
+				this->g.end[i] = true;
+				this->g.start.erase(i);
+			case 3:
+				this->g.end[i] = true;
+				this->g.start.insert(i);
+			}
 			UpdateCompleteEvent(this);
 		}
 	};

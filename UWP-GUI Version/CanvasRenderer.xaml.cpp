@@ -46,7 +46,8 @@ void Automata::CanvasRenderer::InitializeComponent2()
 	this->Linkers = ref new Vector<edge^>();
 	SolidColorBrush^ b = ref new SolidColorBrush(Windows::UI::Colors::Black);
 	drawingEdge->Stroke = b;
-	drawingEdge->StrokeThickness = 2;
+	drawingEdge->StrokeThickness = 5;
+	this->NodeStatusUpdated += ref new Automata::BoundarieEventHandler(this, &Automata::CanvasRenderer::OnNodeStatusUpdated);
 }
 
 Automata::CanvasRenderer::CanvasRenderer(GraphManaged^ g)
@@ -87,37 +88,11 @@ void Automata::CanvasRenderer::clear()
 	this->Board->Children->Clear();
 }
 
-void Automata::CanvasRenderer::EnableManagementMode(bool b)
-{
-	isManagModeOn = b;
-	isEditModeOn = false;
-	drawing = false;
-	for (auto NodePair : this->Layout) {
-		auto Node = NodePair->Value;
-		Node->UnsibscribeDrawEvents(); Node->UnsibscribeDragEvents();
-		if (b) {
-			Node->ManipulationMode = ::ManipulationModes::All;
-			Node->DragTokenOnGoingEventToken = Node->ManipulationDelta += ref new Windows::UI::Xaml::Input::ManipulationDeltaEventHandler(this, &Automata::CanvasRenderer::OnManipulationDelta);
-			Node->DragTokenCompleteEventToken = Node->ManipulationCompleted += ref new Windows::UI::Xaml::Input::ManipulationCompletedEventHandler(this, &Automata::CanvasRenderer::OnManipulationCompleted);
-			Node->LeftTapEventToken = Node->Tapped += ref new Windows::UI::Xaml::Input::TappedEventHandler(this, &Automata::CanvasRenderer::OnTapped);
-			Node->RightTapTokenToken = Node->RightTapped += ref new Windows::UI::Xaml::Input::RightTappedEventHandler(this, &Automata::CanvasRenderer::OnRightTapped);
-		}
-	}
-}
-
 void Automata::CanvasRenderer::EnableEditingMode(bool b)
 {
-	isEditModeOn = b;
-	isManagModeOn = false;
-	dragging = false;
-	for (auto NodePair : this->Layout) {
-		auto Node = NodePair->Value;
-		Node->UnsibscribeDragEvents(); Node->UnsibscribeDrawEvents();
-		if (b) {
-			Node->PointerEntered += ref new Windows::UI::Xaml::Input::PointerEventHandler(this, &Automata::CanvasRenderer::OnPointerEntered);
-			Node->PointerPressed += ref new Windows::UI::Xaml::Input::PointerEventHandler(this, &Automata::CanvasRenderer::OnPointerPressed);
-			Node->PointerReleased += ref new Windows::UI::Xaml::Input::PointerEventHandler(this, &Automata::CanvasRenderer::OnPointerReleased);
-		}
+	this->editMode = b;
+	for (auto Node : this->Layout) {
+		Node->Value->Editing = b;
 	}
 }
 
@@ -140,17 +115,25 @@ void Automata::CanvasRenderer::initialize()
 		bool isEnd = g->Boundaries->Lookup(nodePair) >= 2;
 		bool isStart = (g->Boundaries->Lookup(nodePair) == 1 || g->Boundaries->Lookup(nodePair) == 3);
 		auto Node = ref new node(nodePair.ToString(), isStart, isEnd, Point(this->ActualWidth / 2 + (float)((++j * 50) % (int)this->ActualWidth), this->ActualHeight / 2 + (j * 50 / this->ActualWidth)));
+		Node->ManipulationMode = ::ManipulationModes::All;
+		Node->DragTokenOnGoingEventToken = Node->ManipulationDelta += ref new Windows::UI::Xaml::Input::ManipulationDeltaEventHandler(this, &Automata::CanvasRenderer::OnManipulationDelta);
+		Node->DragTokenCompleteEventToken = Node->ManipulationCompleted += ref new Windows::UI::Xaml::Input::ManipulationCompletedEventHandler(this, &Automata::CanvasRenderer::OnManipulationCompleted);
+		Node->LeftTapEventToken = Node->Tapped += ref new Windows::UI::Xaml::Input::TappedEventHandler(this, &Automata::CanvasRenderer::OnTapped);
+		Node->released += ref new Automata::MouseHookPressed(this, &Automata::CanvasRenderer::Onreleased);
+		Node->RightTapTokenToken = Node->RightTapped += ref new Windows::UI::Xaml::Input::RightTappedEventHandler(this, &Automata::CanvasRenderer::OnRightTapped);
+		Node->hooked += ref new Automata::MouseHookPressed(this, &Automata::CanvasRenderer::Onhooked);
+		Node->locked += ref new Automata::MouseHookPressed(this, &Automata::CanvasRenderer::Onlocked);
 		this->Layout->Insert(nodePair.ToString(), Node);
+		Node->Editing = this->editMode;
 		Node->moved += ref new Automata::positionChanged(this, &Automata::CanvasRenderer::OnNodemoved);
 	}
-	for (auto start : g->Edges) {
-		for (auto edge : start->Value) {
-			for (int dest : edge->Value) {
-				Automata::edge^ edg = ref new Automata::edge(Layout->Lookup(start->Key.ToString()), Layout->Lookup(dest.ToString()), edge->Key);
+	for (auto start : g->Matrix) {
+		if(g->Matrix->HasKey(start->Key))
+			for (auto dest : start->Value) {
+				Automata::edge^ edg = ref new Automata::edge(Layout->Lookup(start->Key.ToString()), Layout->Lookup(dest->Key.ToString()), dest->Value);
 				Linkers->Append(edg);
 				edg->moved += ref new Automata::translatedEvent(this, &Automata::CanvasRenderer::OnEdgemoved);
 			}
-		}
 	}
 	int i = 0;
 	for (edge^ edg : Linkers) {
@@ -172,7 +155,9 @@ void Automata::CanvasRenderer::process()
 		}
 	};
 
-	for (auto&& NodeLayout : Layout) NodeLayout->Value->setPoint(0, 0, true);
+	for (auto&& NodeLayout : Layout) { 
+		NodeLayout->Value->setPoint(0, 0, true);
+	}
 
 	for (int GraphNode : g->Nodes) {
 		for (int neighbor : g->Nodes) {
@@ -266,20 +251,12 @@ void Automata::CanvasRenderer::Rslider_ValueChanged(Platform::Object^ sender, Wi
 
 void Automata::CanvasRenderer::OnTick(Platform::Object^ sender, Platform::Object^ args)
 {
-	if (!this->isEditModeOn && !this->isManagModeOn && isRendered) {
+	if (isRendered && !drawing) {
 		process();
 		if (this->isTimed) this->count++;
 		if (this->isTimed && this->duration == this->count) this->stop();
 	}
-	else if(this->isEditModeOn ) {
-		if (this->drawing) {
-			Point ptrPosition = ptrID->GetCurrentPoint(this->Board)->Position;
-			this->drawingEdge->X2 = ptrPosition.X;
-			this->drawingEdge->Y2 = ptrPosition.Y;
-		}
-	}
 }
-
 
 void Automata::CanvasRenderer::Board_PointerWheelChanged(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
 {
@@ -293,85 +270,128 @@ void Automata::CanvasRenderer::Board_PointerWheelChanged(Platform::Object^ sende
 	e->Handled = true;
 }
 
-
 void Automata::CanvasRenderer::OnManipulationDelta(Platform::Object^ sender, Windows::UI::Xaml::Input::ManipulationDeltaRoutedEventArgs^ e)
 {
-	dragging = true;
-	auto senderCasted = dynamic_cast<node^>(sender);
-	senderCasted->Position = Point(senderCasted->Position.X + e->Delta.Translation.X* ZoomController->ScaleX, senderCasted->Position.Y + e->Delta.Translation.Y* ZoomController->ScaleY);
+	if(editMode)
+		if (!drawing) {
+			dragging = true;
+			auto senderCasted = dynamic_cast<node^>(sender);
+			senderCasted->Position = Point(senderCasted->Position.X + e->Delta.Translation.X * ZoomController->ScaleX, senderCasted->Position.Y + e->Delta.Translation.Y * ZoomController->ScaleY);
+		} else {
+			Windows::UI::Input::PointerPoint^ ptrPt = this->ptrID->GetCurrentPoint(this->Board);
+			if (ptrPt->Properties->IsLeftButtonPressed)
+			{
+				Point ptrEPosition = this->ptrID->GetCurrentPoint(this->Board)->Position;
+				Point ptrSPosition = this->Layout->Lookup(this->StartNode)->Position;
+				float size = this->Layout->Lookup(this->StartNode)->Size;
+				drawingEdge->X2 = (ptrEPosition.X - ptrSPosition.X) - size/2; drawingEdge->Y2 = (ptrEPosition.Y - ptrSPosition.Y) - size / 2;
+			}
+			else {
+				this->drawing = false;
+				uint32 index;
+				if (this->Board->Children->IndexOf(this->drawingEdge, &index)) {
+					this->Board->Children->RemoveAt(index);
+				}
+			}
+		}
 }
-
 
 void Automata::CanvasRenderer::OnManipulationCompleted(Platform::Object^ sender, Windows::UI::Xaml::Input::ManipulationCompletedRoutedEventArgs^ e)
 {
-	dragging = false;
+	if(editMode)
+		dragging = false;
 }
-
 
 void Automata::CanvasRenderer::OnTapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e)
 {
-	auto Node = dynamic_cast<node^>(sender);
-	int NodeID = Methods::StringToInt(Node->Label);
-	bool before = this->g->isStartNode(NodeID);
-	Node->IsStartNode = !before;
-	this->g->StartNodeSetState(NodeID, !before);
-	Node->update();
+	if (editMode) {
+		auto Node = dynamic_cast<node^>(sender);
+		int NodeID = Methods::StringToInt(Node->Label);
+		bool before = this->g->isStartNode(NodeID);
+		Node->IsStartNode = !before;
+		this->NodeStatusUpdated(NodeID, Node->IsEndNode, Node->IsStartNode);
+	}
 }
 
 void Automata::CanvasRenderer::OnRightTapped(Platform::Object^ sender, Windows::UI::Xaml::Input::RightTappedRoutedEventArgs^ e)
 {
-	auto Node = dynamic_cast<node^>(sender);
-	int NodeID = Methods::StringToInt(Node->Label);
-	bool before = this->g->isEndNode(NodeID);
-	Node->IsEndNode = !before;
-	this->g->EndNodeSetState(NodeID, !before);
-	Node->update();
+	if (editMode) {
+		auto Node = dynamic_cast<node^>(sender);
+		int NodeID = Methods::StringToInt(Node->Label);
+		bool before = this->g->isEndNode(NodeID);
+		Node->IsEndNode = !before;
+		this->NodeStatusUpdated(NodeID, Node->IsEndNode, Node->IsStartNode);
+	}
 }
 
-void Automata::CanvasRenderer::Grid_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+void Automata::CanvasRenderer::Onhooked(Automata::node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
 {
-	ptrID = e;
+	if (editMode) {
+		uint32 index;
+		if (this->Board->Children->IndexOf(this->drawingEdge, &index)) {
+			this->Board->Children->RemoveAt(index);
+		}
+		if (!this->drawing) {
+			this->StartNode = sender->Label;
+			this->drawing = true;
+			Point ptrPosition = sender->Position;
+			this->Board->Children->Append(this->drawingEdge);
+			this->Board->SetLeft(this->drawingEdge, ptrPosition.X + sender->Size / 2);
+			this->Board->SetTop(this->drawingEdge, ptrPosition.Y + sender->Size / 2);
+			this->Board->SetZIndex(this->drawingEdge, -1);
+		}
+	}
 }
 
-void Automata::CanvasRenderer::OnPointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+void Automata::CanvasRenderer::Onreleased(Automata::node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
 {
-	this->EndNode = dynamic_cast<node^>(sender)->Label;
+	if (editMode) {
+		this->drawing = false;
+		uint32 index;
+		if (this->Board->Children->IndexOf(this->drawingEdge, &index)) {
+			this->Board->Children->RemoveAt(index);
+		}
+	}
 }
 
-void Automata::CanvasRenderer::OnPointerReleased(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+void Automata::CanvasRenderer::Board_PointerMoved(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
 {
-	if (drawing) {
+	if(editMode)
+		this->ptrID = e;
+}
+
+void Automata::CanvasRenderer::Onlocked(Automata::node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	if (drawing && editMode) {
+		this->EndNode = sender->Label;
+		this->stop();
+		Point ptrEPosition = this->Layout->Lookup(this->EndNode)->Position;
+		Point ptrSPosition = this->Layout->Lookup(this->StartNode)->Position;
+		float size = this->Layout->Lookup(this->StartNode)->Size;
+		drawingEdge->X2 = (ptrEPosition.X - ptrSPosition.X) * this->ZoomController->ScaleX; drawingEdge->Y2 = (ptrEPosition.Y - ptrSPosition.Y) * this->ZoomController->ScaleY;
 		ContentDialog^ weightRequest = ref new ContentDialog();
 		TextBox^ LabelEdge = ref new TextBox();
 		LabelEdge->Width = 175;
+		LabelEdge->TextAlignment = TextAlignment::Center;
 		LabelEdge->Header = "Weight";
 		LabelEdge->PlaceholderText = "Inser Edge Weight here";
 		weightRequest->Content = LabelEdge;
 		weightRequest->PrimaryButtonText = "OK";
 		weightRequest->SecondaryButtonText = "Cancel";
 		CanvasRenderer^ main = this;
-		concurrency::create_task(weightRequest->ShowAsync()).then([LabelEdge,main](ContentDialogResult result) {
+		concurrency::create_task(weightRequest->ShowAsync()).then([LabelEdge, main](ContentDialogResult result) {
+			main->drawing = false;
 			if (result == ContentDialogResult::Primary) {
-				main->g->insert(Methods::StringToInt(main->StartNode), Methods::StringToInt(main->EndNode), LabelEdge->Text == "" ? "0" : LabelEdge->Text);
+				main->EdgeInserted(Methods::StringToInt(main->StartNode), Methods::StringToInt(main->EndNode), LabelEdge->Text == "" ? "0" : LabelEdge->Text);
 			}
 			uint32 index;
 			if (main->Board->Children->IndexOf(main->drawingEdge, &index))
 				main->Board->Children->RemoveAt(index);
-			main->drawing = false;
-			main->stop();
 			});
 	}
 }
 
-void Automata::CanvasRenderer::OnPointerPressed(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+void Automata::CanvasRenderer::OnNodeStatusUpdated(int s, bool isEnd, bool isStart)
 {
-	drawing = true;
-	this->StartNode = dynamic_cast<node^>(sender)->Label;
-	Point ptrPosition = ptrID->GetCurrentPoint(this->Board)->Position;
-	this->Board->Children->Append(this->drawingEdge);
-	drawingEdge->X1 = 0; drawingEdge->Y1 = 0;
-	this->Board->SetLeft(this->drawingEdge, ptrPosition.X);
-	this->Board->SetTop(this->drawingEdge, ptrPosition.Y);
-	this->start();
+	this->Layout->Lookup(s.ToString())->update();
 }
-

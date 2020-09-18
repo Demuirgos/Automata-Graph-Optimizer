@@ -13,6 +13,7 @@ void Automata::GraphManaged::MakeCopy(GraphManaged^ source)
 	this->nodes = source->nodes;
 	this->pairs = source->pairs;
 	this->uniquepairs = source->uniquepairs;
+	this->matrix = source->matrix;
 }
 
 IMap<int, IVector<int>^>^ Automata::GraphManaged::getUniquePairs()
@@ -70,11 +71,32 @@ IVector<int>^ Automata::GraphManaged::getNodes()
 	return ref new Vector<int>(nodeset.begin(),nodeset.end());
 }
 
+IMap<int, IMap<int, String^>^>^ Automata::GraphManaged::getMatrix()
+{
+	Map<int, IMap<int, String^>^>^ _matrix = ref new Map<int, IMap<int, String^>^>();
+	for (auto node : this->edges) {
+		if (!_matrix->HasKey(node->Key)) _matrix->Insert(node->Key, ref new Map<int, String^>());
+		auto src = _matrix->Lookup(node->Key);
+		for (auto edge : node->Value) {
+			for (auto dest : edge->Value) {
+				if (!src->HasKey(dest)) src->Insert(dest, edge->Key);
+				else {
+					String^ prevWeight = src->Lookup(dest);
+					String^ newWeight = prevWeight + (prevWeight == "" ? edge->Key : (", " + edge->Key));
+					src->Insert(dest, newWeight);
+				}
+			}
+		}
+	}
+	return _matrix;
+}
+
 void Automata::GraphManaged::OnModifiedEvent(Object^ sender)
 {
 	pairs =this->getPairs();
 	uniquepairs = this->getUniquePairs();
 	nodes = this->getNodes();
+	matrix = this->getMatrix();
 	UpdateUnderLayingNativeRepr();
 	UpdateCompleteEvent(this);
 }
@@ -94,11 +116,12 @@ Automata::GraphManaged::GraphManaged(GraphManaged^ source)
 	this->g = source->g;
 	this->pairs = source->pairs;
 	this->uniquepairs = source->uniquepairs;
+	this->matrix = source->matrix;
 	this->ModifiedEvent += ref new Automata::Modified(this, &Automata::GraphManaged::OnModifiedEvent);
 }
 
 GraphManaged::GraphManaged(IMap<int, IMap<String^, IVector<int>^>^>^ e, IMap<int, int>^ b, IVector<int>^ n) {
-	boundaries = b; nodes = n; edges = e; uniquepairs = getUniquePairs(); pairs = getPairs();
+	boundaries = b; nodes = n; edges = e; uniquepairs = getUniquePairs(); pairs = getPairs(); matrix = getMatrix();
 	this->ModifiedEvent += ref new Automata::Modified(this, &Automata::GraphManaged::OnModifiedEvent);
 }
 
@@ -175,6 +198,7 @@ void Automata::GraphManaged::Optimise(bool Phase1, bool Phase2, bool Phase3)
 
 GraphManaged::GraphManaged() {
 	boundaries = ref new Map<int, int>(); nodes = ref new Vector<int>(); edges = ref new Map<int, IMap<String^, IVector<int>^>^>();
+	uniquepairs = getUniquePairs(); pairs = getPairs(); matrix = getMatrix();
 	this->ModifiedEvent += ref new Automata::Modified(this, &Automata::GraphManaged::OnModifiedEvent);
 }
 

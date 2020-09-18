@@ -6,8 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <Grid PointerEntered="Grid_PointerEntered" >
-        <Canvas x:Name="Board" Background="White" RequestedTheme="Light" ManipulationMode="All" ManipulationDelta="Board_ManipulationDelta" Grid.ColumnSpan="2" PointerWheelChanged="Board_PointerWheelChanged"/>
+    <Grid x:Name="BackHolder">
+        <Canvas x:Name="Board" Background="White" RequestedTheme="Light" ManipulationMode="All" ManipulationDelta="Board_ManipulationDelta" PointerWheelChanged="Board_PointerWheelChanged" PointerMoved="Board_PointerMoved"/>
         <AppBar VerticalAlignment="Bottom" Grid.ColumnSpan="2">
             <AppBar.Content>
                 <GridView>

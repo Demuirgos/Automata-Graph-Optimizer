@@ -18,8 +18,13 @@ namespace Automata
 	{
 	public:
 		EditPage();
+		property int OptimisationMode {
+			int get() { return this->optimisatioMode; }
+			void set(int v) { this->optimisatioMode = v; }
+		}
 	private:
 		GraphManaged^ g;
+		int optimisatioMode = 0;
 		Windows::Foundation::EventRegistrationToken textChanging;
 		Platform::String^ data;
 		void InitGraph(String^ data);
@@ -35,12 +40,15 @@ namespace Automata
 		void OnUpdateCompleteEvent(Platform::Object^ sender);
 		void Stop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void Render_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void Manage_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void Optimise_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void Draw_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void Clear_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void Edit_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void OnTextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e);
 		void Revert_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void Edit_Click_1(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void OnEdgeInserted(int s, int f, Platform::String^ w);
+		void OnNodeStatusUpdated(int s, bool isEnd, bool isStart);
+		void OnSizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
+		void OnPaneOpened(Windows::UI::Xaml::Controls::SplitView^ sender, Platform::Object^ args);
 	};
 }

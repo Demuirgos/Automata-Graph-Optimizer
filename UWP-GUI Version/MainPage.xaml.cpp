@@ -7,6 +7,7 @@
 #include "MainPage.xaml.h"
 #include "Graphs.h"
 #include "CanvasRenderer.xaml.h"
+#include "EditPage.xaml.h"
 using namespace Platform::Collections;
 
 using namespace Automata;
@@ -60,10 +61,12 @@ void Automata::MainPage::E_NFA_to_NFA_Toggled(Platform::Object^ sender, Windows:
 {
 	if (E_NFA_to_NFA->IsOn==true) {
 		NFA_to_DFA->IsEnabled = true;
+		this->EditBoard->OptimisationMode += 1;
 	}
 	else {
 		NFA_to_DFA->IsOn = false;
 		NFA_to_DFA->IsEnabled = false;
+		this->EditBoard->OptimisationMode -= 1;
 	}
 }
 
@@ -71,10 +74,22 @@ void Automata::MainPage::NFA_to_DFA_Toggled(Platform::Object^ sender, Windows::U
 {
 	if (NFA_to_DFA->IsOn == true) {
 		DFA_to_minDFA->IsEnabled = true;
+		this->EditBoard->OptimisationMode += 1;
 	}
 	else {
 		DFA_to_minDFA->IsEnabled = false;
 		DFA_to_minDFA->IsOn = false;
+		this->EditBoard->OptimisationMode -= 1;
+	}
+}
+
+void Automata::MainPage::DFA_to_minDFA_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	if (NFA_to_DFA->IsOn == true) {
+		this->EditBoard->OptimisationMode += 1;
+	}
+	else {
+		this->EditBoard->OptimisationMode -= 1;
 	}
 }
 
@@ -177,22 +192,30 @@ void Automata::MainPage::Holder_SizeChanged(Platform::Object^ sender, Windows::U
 
 void Automata::MainPage::OnStartChecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	this->g->StartNodeSetState(Methods::StringToInt(((CheckBox^)sender)->Name), true);
+	auto nodeId = Methods::StringToInt(((CheckBox^)sender)->Name);
+	int rank = this->g->Boundaries->Lookup(nodeId);
+	this->g->NodeSetState(nodeId, rank + 1);
 }
 
 void Automata::MainPage::OnStartUnchecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	this->g->StartNodeSetState(Methods::StringToInt(((CheckBox^)sender)->Name), false);
+	auto nodeId = Methods::StringToInt(((CheckBox^)sender)->Name);
+	int rank = this->g->Boundaries->Lookup(nodeId);
+	this->g->NodeSetState(nodeId, rank - 1);
 }
 
 void Automata::MainPage::OnEndChecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	this->g->EndNodeSetState(Methods::StringToInt(((CheckBox^)sender)->Name), true);
+	auto nodeId = Methods::StringToInt(((CheckBox^)sender)->Name);
+	int rank = this->g->Boundaries->Lookup(nodeId);
+	this->g->NodeSetState(nodeId, rank + 2);
 }
 
 void Automata::MainPage::OnEndUnchecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	this->g->EndNodeSetState(Methods::StringToInt(((CheckBox^)sender)->Name), false);
+	auto nodeId = Methods::StringToInt(((CheckBox^)sender)->Name);
+	int rank = this->g->Boundaries->Lookup(nodeId);
+	this->g->NodeSetState(nodeId, rank - 1);
 
 }
 
@@ -202,7 +225,6 @@ void Automata::MainPage::optimizeGraph()
 	this->r = ref new GraphManaged(this->g);
 	this->r->Optimise(p1, p2, p3);
 }
-
 
 void Automata::MainPage::BoardHolder_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
 {
@@ -218,3 +240,4 @@ void Automata::MainPage::BoardHolder_SelectionChanged(Platform::Object^ sender, 
 		Button->Visibility = Windows::UI::Xaml::Visibility::Visible;
 	}
 }
+

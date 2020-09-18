@@ -92,3 +92,26 @@ void Automata::node::update()
 		break;
 	}
 }
+
+void Automata::node::Hook_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	if (editing)
+		dynamic_cast<Shapes::Ellipse^>(sender)->Opacity = 100;
+	locked(this, e);
+}
+
+void Automata::node::Hook_PointerPressed(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	hooked(this,e);
+}
+
+void Automata::node::Hook_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	if(editing)
+		dynamic_cast<Shapes::Ellipse^>(sender)->Opacity = 0;
+}
+
+void Automata::node::Hook_PointerReleased(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	this->released(this, e);
+}
