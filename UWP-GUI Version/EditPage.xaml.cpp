@@ -187,13 +187,41 @@ void Automata::EditPage::OnNodeStatusUpdated(int s, bool isEnd, bool isStart)
 
 void Automata::EditPage::OnSizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
 {
-	/*this->Board->Height = e->NewSize.Height;*/ this->Result->Height = e->NewSize.Height;
-	/*this->Board->Width = e->NewSize.Width;*/ this->Result->Height = e->NewSize.Height;
+	this->Board->Height = max(e->NewSize.Height, this->Board->Height); this->Result->Height = e->NewSize.Height;
+	this->Board->Width = max(e->NewSize.Width, this->Board->Width); this->Result->Height = e->NewSize.Height;
 }
+
 void Automata::EditPage::OnPaneOpened(Windows::UI::Xaml::Controls::SplitView^ sender, Platform::Object^ args)
 {
 	bool p1 = this->optimisatioMode > 0; bool p2 = this->optimisatioMode > 1; bool p3 = this->optimisatioMode > 2;
 	this->Result->Graph = ref new GraphManaged(this->g);
 	this->Result->Graph->Optimise(p1, p2, p3);
 	this->Result->start();
+}
+
+void Automata::EditPage::PrevUpdate_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	int rank = isStart->IsOn + (this->isEnd->IsOn << 1);
+	switch (rank) {
+	case 1:
+		this->NodePrev->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Green);
+		break;
+	case 2:
+		this->NodePrev->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Red);
+		break;
+	case 0:
+		this->NodePrev->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Black);
+		break;
+	case 3:
+		LinearGradientBrush^ linearStroke = ref new LinearGradientBrush();
+		linearStroke->EndPoint = Point(0.5, 1); linearStroke->StartPoint = Point(0.5, 0);
+		auto stop1 = ref new GradientStop(); stop1->Color = Windows::UI::Colors::Green; stop1->Offset = 0;
+		auto stop2 = ref new GradientStop(); stop2->Color = Windows::UI::Colors::LightGray; stop2->Offset = 0.5;
+		auto stop3 = ref new GradientStop(); stop3->Color = Windows::UI::Colors::Red; stop3->Offset = 1;
+		linearStroke->GradientStops->Append(stop1);
+		linearStroke->GradientStops->Append(stop2);
+		linearStroke->GradientStops->Append(stop3);
+		this->NodePrev->Stroke = linearStroke;
+		break;
+	}
 }

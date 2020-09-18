@@ -50,5 +50,6 @@ namespace Automata
 		void OnNodeStatusUpdated(int s, bool isEnd, bool isStart);
 		void OnSizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
 		void OnPaneOpened(Windows::UI::Xaml::Controls::SplitView^ sender, Platform::Object^ args);
+		void PrevUpdate_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 	};
 }

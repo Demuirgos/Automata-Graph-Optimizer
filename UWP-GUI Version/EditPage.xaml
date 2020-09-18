@@ -27,13 +27,14 @@
                                         <TextBlock Text="Node :"/>
                                         <Grid Background="White">
                                             <Ellipse x:Name="NodePrev" Margin="5" Width="100" Height="100" StrokeThickness="10" Stroke="Black"/>
+                                            <TextBlock Margin="65,35,0,0" FontSize="24" Width="75" TextWrapping="Wrap" Foreground="Black" Text="{Binding ElementName=NodeLabel,Path=Text}"/>
                                         </Grid>
                                         <TextBox x:Name="NodeLabel" Header="Label : " Width="150"/>
                                     </StackPanel>
                                     <StackPanel Margin="10" Width="153">
                                         <StackPanel>
-                                            <ToggleSwitch x:Name="isStart" Header="Start : "/>
-                                            <ToggleSwitch x:Name="isEnd" Header="End : "/>
+                                            <ToggleSwitch x:Name="isStart" Header="Start : " Toggled="PrevUpdate_Toggled"/>
+                                            <ToggleSwitch x:Name="isEnd" Header="End : " Toggled="PrevUpdate_Toggled"/>
                                             <AppBarButton x:Name="AddNode" Icon="Add" Label="Add" Click="AddNode_Click"/>
                                         </StackPanel>
                                     </StackPanel>
