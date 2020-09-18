@@ -104,8 +104,8 @@ void Automata::GraphManaged::OnModifiedEvent(Object^ sender)
 Automata::GraphManaged::GraphManaged(String^ data)
 {
 	this->g = graph(Methods::ToCppString(data));
-	this->MakeCopy(this->ConvertToManaged());
 	this->ModifiedEvent += ref new Automata::Modified(this, &Automata::GraphManaged::OnModifiedEvent);
+	this->MakeCopy(this->ConvertToManaged());
 }
 
 Automata::GraphManaged::GraphManaged(GraphManaged^ source)

@@ -114,7 +114,7 @@ void Automata::CanvasRenderer::initialize()
 	for (int nodePair : g->Nodes) {
 		bool isEnd = g->Boundaries->Lookup(nodePair) >= 2;
 		bool isStart = (g->Boundaries->Lookup(nodePair) == 1 || g->Boundaries->Lookup(nodePair) == 3);
-		auto Node = ref new node(nodePair.ToString(), isStart, isEnd, Point(this->ActualWidth / 2 - 100 + (float)((++j * 50) % (int)this->ActualWidth), this->ActualHeight / 2 + - 200 + (j * 50 / this->ActualWidth)));
+		auto Node = ref new node(nodePair.ToString(), isStart, isEnd, Point(this->Board->ActualWidth / 2 - 100 + (float)((++j * 50) % (int)this->Board->ActualWidth), this->Board->ActualHeight / 4 + (j * 50 / this->Board->ActualWidth)));
 		Node->ManipulationMode = ::ManipulationModes::All;
 		Node->DragTokenOnGoingEventToken = Node->ManipulationDelta += ref new Windows::UI::Xaml::Input::ManipulationDeltaEventHandler(this, &Automata::CanvasRenderer::OnManipulationDelta);
 		Node->DragTokenCompleteEventToken = Node->ManipulationCompleted += ref new Windows::UI::Xaml::Input::ManipulationCompletedEventHandler(this, &Automata::CanvasRenderer::OnManipulationCompleted);
