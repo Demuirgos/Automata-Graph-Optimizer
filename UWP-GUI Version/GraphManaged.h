@@ -71,22 +71,7 @@ namespace Automata {
 		void NodeSetState(int i, int rank) {
 			if (!this->Boundaries->HasKey(i)) this->Boundaries->Insert(i, 0);
 			this->Boundaries->Insert(i, rank);
-			switch (rank) {
-			case 0:
-				this->g.end.erase(i);
-				this->g.start.erase(i);
-				break;
-			case 1:
-				this->g.end.erase(i);
-				this->g.start.insert(i);
-				break;
-			case 2:
-				this->g.end[i] = true;
-				this->g.start.erase(i);
-			case 3:
-				this->g.end[i] = true;
-				this->g.start.insert(i);
-			}
+			UpdateUnderLayingNativeRepr();
 			UpdateCompleteEvent(this);
 		}
 	};
