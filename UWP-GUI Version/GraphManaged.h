@@ -31,6 +31,7 @@ namespace Automata {
 		GraphManaged(GraphManaged^ source);
 		GraphManaged(IMap<int, IMap<String^, IVector<int>^>^>^ e, IMap<int, int>^ b, IVector<int>^ n);
 		GraphManaged();
+		void Clear();
 		void insert(int s, int f, String^ w);
 		void Optimise(bool Phase1,bool Phase2, bool Phase3);
 		property IMap<int, IMap<String^, IVector<int>^>^>^ Edges {

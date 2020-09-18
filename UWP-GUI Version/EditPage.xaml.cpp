@@ -25,11 +25,9 @@ using namespace Windows::UI::Xaml::Navigation;
 EditPage::EditPage()
 {
 	InitializeComponent();
-	g = ref new GraphManaged();
-	this->Board->Graph = this->g;
 	this->separator->RenderTransform = ref new TranslateTransform();
-	g->ModifiedEvent += ref new Automata::Modified(this, &Automata::EditPage::OnModifiedEvent);
-	g->UpdateCompleteEvent += ref new Automata::Modified(this, &Automata::EditPage::OnUpdateCompleteEvent);
+	textChanging = this->TextInput->TextChanged += ref new Windows::UI::Xaml::Controls::TextChangedEventHandler(this, &Automata::EditPage::OnTextChanged);
+	InitGraph("");
 }
 
 void Automata::EditPage::OnModifiedEvent(Object^ sender)
@@ -43,6 +41,17 @@ void Automata::EditPage::OnModifiedEvent(Object^ sender)
 	this->Board->start(5);
 }
 
+
+void Automata::EditPage::InitGraph(String^ data)
+{
+	if (data == "")
+		g = ref new GraphManaged();
+	else
+		g = ref new GraphManaged(data);
+	this->Board->Graph = this->g;
+	g->ModifiedEvent += ref new Automata::Modified(this, &Automata::EditPage::OnModifiedEvent);
+	g->UpdateCompleteEvent += ref new Automata::Modified(this, &Automata::EditPage::OnUpdateCompleteEvent);
+}
 
 void Automata::EditPage::SplitView_PaneClosing(Windows::UI::Xaml::Controls::SplitView^ sender, Windows::UI::Xaml::Controls::SplitViewPaneClosingEventArgs^ args)
 {
@@ -122,7 +131,9 @@ void Automata::EditPage::separator_PointerExited(Platform::Object^ sender, Windo
 
 void Automata::EditPage::OnUpdateCompleteEvent(Platform::Object^ sender)
 {
+	this->TextInput->TextChanged -= textChanging;
 	this->TextInput->Text = this->g->Data;
+	textChanging = this->TextInput->TextChanged += ref new Windows::UI::Xaml::Controls::TextChangedEventHandler(this, &Automata::EditPage::OnTextChanged);
 }
 
 
@@ -146,7 +157,7 @@ void Automata::EditPage::Manage_Click(Platform::Object^ sender, Windows::UI::Xam
 
 void Automata::EditPage::Optimise_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-
+	
 }
 
 
@@ -158,10 +169,25 @@ void Automata::EditPage::Draw_Click(Platform::Object^ sender, Windows::UI::Xaml:
 
 void Automata::EditPage::Clear_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	this->g = ref new GraphManaged();
-	this->Board->Graph = this->g;
-	g->ModifiedEvent += ref new Automata::Modified(this, &Automata::EditPage::OnModifiedEvent);
-	g->UpdateCompleteEvent += ref new Automata::Modified(this, &Automata::EditPage::OnUpdateCompleteEvent);
-	this->TextInput->Text = "";
-	this->Board->clear();
+	this->g->Clear();
+	this->Board->start(5);
+}
+
+void Automata::EditPage::Edit_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	this->Board->EnableEditingMode(true);
+}
+
+
+void Automata::EditPage::OnTextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e)
+{
+	this->data = this->TextInput->Text;
+	InitGraph(data);
+	this->Board->start(5);
+}
+
+void Automata::EditPage::Revert_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	this->Board->EnableEditingMode(false);
+	this->Board->EnableManagementMode(false);
 }

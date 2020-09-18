@@ -208,11 +208,13 @@ void Automata::MainPage::BoardHolder_SelectionChanged(Platform::Object^ sender, 
 {
 	auto Sender = dynamic_cast<Pivot^>(sender);
 	if (Sender->SelectedIndex == 2) {
-		Start_slect_grid->Visibility == Windows::UI::Xaml::Visibility::Collapsed;
-		End_slect_grid->Visibility == Windows::UI::Xaml::Visibility::Collapsed;
+		Start_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
+		End_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Collapsed; 
+		Button->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
 	}
 	else {
-		Start_slect_grid->Visibility == Windows::UI::Xaml::Visibility::Visible;
-		End_slect_grid->Visibility == Windows::UI::Xaml::Visibility::Visible;
+		Start_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Visible;
+		End_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Visible;
+		Button->Visibility = Windows::UI::Xaml::Visibility::Visible;
 	}
 }

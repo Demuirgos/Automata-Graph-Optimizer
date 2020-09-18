@@ -52,6 +52,21 @@ void Automata::node::Initialize()
 	update();
 }
 
+void Automata::node::UnsibscribeDragEvents()
+{
+	this->ManipulationDelta -= this->DragTokenOnGoing;
+	this->ManipulationCompleted -= this->DragTokenCompleteEventToken;
+	this->Tapped -= this->LeftTapEventToken;
+	this->RightTapped -= this->RightTapTokenToken;
+}
+
+void Automata::node::UnsibscribeDrawEvents()
+{
+	this->PointerEntered -= this->MouseEnterEventToken;
+	this->PointerPressed -= this->PointerPressedEventToken;
+	this->PointerReleased -= this->PointerPressedEventToken;
+}
+
 void Automata::node::update()
 {
 	switch (this->type) {

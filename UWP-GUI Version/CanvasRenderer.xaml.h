@@ -30,16 +30,21 @@ namespace Automata
 		void start(int duration);
 		void stop();
 		void clear();
-		void EnableManagementMode(bool b) {
-			isEditModeOn = b;
-			this->initialize();
-			this->start(5);
-		}
+		void EnableManagementMode(bool b);
+		void EnableEditingMode(bool b);
 		void update();
 	private:
 		bool isEditModeOn = false;
+		bool isManagModeOn = false;
 		bool dragging = false;
 		DispatcherTimer^ timer;
+
+		Windows::UI::Xaml::Input::PointerRoutedEventArgs^ ptrID;
+		bool drawing = false;
+		String^ StartNode;
+		String^ EndNode;
+		Shapes::Line^ drawingEdge = ref new Shapes::Line();
+
 		GraphManaged^ g;
 		Platform::Collections::Map<String^, node^>^ Layout;
 		IVector<edge^>^ Linkers;
@@ -61,5 +66,9 @@ namespace Automata
 		void OnManipulationCompleted(Platform::Object^ sender, Windows::UI::Xaml::Input::ManipulationCompletedRoutedEventArgs^ e);
 		void OnTapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e);
 		void OnRightTapped(Platform::Object^ sender, Windows::UI::Xaml::Input::RightTappedRoutedEventArgs^ e);
+		void Grid_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void OnPointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void OnPointerReleased(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void OnPointerPressed(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 	};
 }

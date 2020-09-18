@@ -7,6 +7,7 @@
 #include "node.g.h"
 
 using namespace Platform;
+using namespace Platform::Collections;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::UI::Xaml;
@@ -84,9 +85,10 @@ namespace Automata
 				if (v && type == NodeType::EndingNode) {
 					this->type = NodeType::StartingAndEndingNode;
 				}
-				else if(v && type != NodeType::EndingNode) {
+				else if (v && type != NodeType::EndingNode) {
 					this->type = NodeType::StartingNode;
-				}else if (!v && type == NodeType::EndingNode) {
+				}
+				else if (!v && type == NodeType::EndingNode) {
 					this->type = NodeType::EndingNode;
 				}
 				else if (!v && type != NodeType::EndingNode) {
@@ -94,8 +96,47 @@ namespace Automata
 				};;
 			}
 		}
+		property EventRegistrationToken DragTokenOnGoingEventToken {
+			EventRegistrationToken get() { return this->DragTokenOnGoing; }
+			void set(EventRegistrationToken v) {this->DragTokenOnGoing = v; }
+		}
+		property EventRegistrationToken DragTokenCompleteEventToken {
+			EventRegistrationToken get() { return this->DragTokenComplete; }
+			void set(EventRegistrationToken v) { this->DragTokenComplete = v; }
+		}
+		property EventRegistrationToken LeftTapEventToken{
+			EventRegistrationToken get() { return this->LeftTapToken; }
+			void set(EventRegistrationToken v) { this->LeftTapToken = v; }
+		}
+		property EventRegistrationToken RightTapTokenToken {
+			EventRegistrationToken get() { return this->RightTapToken; }
+			void set(EventRegistrationToken v) { this->RightTapToken = v; }
+		}
+		property EventRegistrationToken MouseEnterEventToken {
+			EventRegistrationToken get() { return this->MouseEnterToken; }
+			void set(EventRegistrationToken v) { this->MouseEnterToken = v; }
+		}
+		property EventRegistrationToken PointerPressedEventToken {
+			EventRegistrationToken get() { return this->PointerPressedToken; }
+			void set(EventRegistrationToken v) { this->PointerPressedToken = v; }
+		}
+		property EventRegistrationToken MouseReleasedEventToken {
+			EventRegistrationToken get() { return this->MouseReleasedToken; }
+			void set(EventRegistrationToken v) { this->MouseReleasedToken = v; }
+		}
+		void UnsibscribeDragEvents();
+		void UnsibscribeDrawEvents();
 		void update();
 	private:
+		//event tokes
+		EventRegistrationToken DragTokenOnGoing;
+		EventRegistrationToken DragTokenComplete;
+		EventRegistrationToken LeftTapToken;
+		EventRegistrationToken RightTapToken;
+		EventRegistrationToken MouseEnterToken;
+		EventRegistrationToken PointerPressedToken;
+		EventRegistrationToken MouseReleasedToken;
+		
 		NodeType type = NodeType::OrdinaryNode;
 		Point Location;
 		Point force;

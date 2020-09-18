@@ -177,3 +177,11 @@ GraphManaged::GraphManaged() {
 	boundaries = ref new Map<int, int>(); nodes = ref new Vector<int>(); edges = ref new Map<int, IMap<String^, IVector<int>^>^>();
 	this->ModifiedEvent += ref new Automata::Modified(this, &Automata::GraphManaged::OnModifiedEvent);
 }
+
+void Automata::GraphManaged::Clear()
+{
+	this->edges->Clear();
+	this->nodes->Clear();
+	this->boundaries->Clear();
+	OnModifiedEvent(this);
+}
