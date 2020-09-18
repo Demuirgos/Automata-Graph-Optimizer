@@ -6,9 +6,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Width="1150">
 
-    <Grid >
+    <Grid Width="1150">
         <SplitView x:Name="editPage" OpenPaneLength="300"  DisplayMode="CompactOverlay" PaneOpening="editPage_PaneOpening" PaneClosing="SplitView_PaneClosing">
             <SplitView.Pane>
                 <Grid Height="{Binding ElementName=editPage,Path=Height}" ScrollViewer.VerticalScrollBarVisibility="Visible">
@@ -65,16 +66,30 @@
                         <SplitView.Pane>
                             <local:CanvasRenderer x:Name="Result" RequestedTheme="Light" Background="White" Height="{Binding ElementName=BoardsHolder,Path=Height}" VerticalAlignment="Top"/>
                         </SplitView.Pane>
-                        <local:CanvasRenderer x:Name="Board"  RequestedTheme="Light" Background="White" Height="{Binding ElementName=BoardsHolder,Path=Height}" VerticalAlignment="Top"/>
+                        <local:CanvasRenderer x:Name="Board" Width="1100" RequestedTheme="Light" Background="White" Height="{Binding ElementName=BoardsHolder,Path=Height}" VerticalAlignment="Top"/>
                     </SplitView>
                     <Rectangle x:Name="separator" VerticalAlignment="Center" ManipulationDelta="separator_ManipulationDelta" ManipulationMode="All" Height="30" PointerEntered="separator_PointerEntered" PointerExited="separator_PointerExited">
                         <Rectangle.Fill>
-                            <ImageBrush ImageSource="/Assets/separator.png"/>
+                            <ImageBrush ImageSource="/Assets/separator.png" />
                         </Rectangle.Fill>
                     </Rectangle>
-                    <RichEditBox x:Name="TextInput" Height="225" Margin="0,0,0,25" VerticalAlignment="Bottom" RequestedTheme="Light"/>
+                    <TextBox x:Name="TextInput" Background="White" Height="225" AcceptsReturn="True" Margin="0,0,0,25" VerticalAlignment="Bottom" RequestedTheme="Light"/>
                 </Grid>
-                <AppBar VerticalAlignment="Bottom"/>
+                <AppBar VerticalAlignment="Bottom">
+                    <GridView>
+                        <AppBarButton x:Name="Render" Icon="Pictures" Label="Render" Click="Render_Click"/>
+                        <AppBarButton x:Name="Stop" Icon="Pause" Label="Stop" Click="Stop_Click"/>
+                        <AppBarButton x:Name="Manage" Icon="Manage" Label="Edit" Click="Manage_Click"/>
+                        <AppBarButton x:Name="Optimise" Icon="Trim" Label="Optimise" Click="Optimise_Click"/>
+                        <ToggleButton x:Name="Draw" Background="Transparent" Click="Draw_Click">
+                            <Grid Margin="-10,-6,-10,-6" IsTapEnabled="False">
+                                <SymbolIcon Symbol="Edit" VerticalAlignment="Top" Margin="5"/>
+                                <TextBlock Text="Draw" VerticalAlignment="Bottom" Margin="5,30,0,0" FontSize="12"/>
+                            </Grid>
+                        </ToggleButton>
+                        <AppBarButton x:Name="Clear" Icon="Clear" Label="Clear" Click="Clear_Click"/>
+                    </GridView>
+                </AppBar>
             </Grid>
         </SplitView>
     </Grid>

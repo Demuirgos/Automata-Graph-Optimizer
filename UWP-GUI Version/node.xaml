@@ -11,6 +11,6 @@
 
     <Grid>
         <Ellipse x:Name="shape" Width="45" Fill="White" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center" Stroke="Black" StrokeThickness="5"/>
-        <TextBlock x:Name="id" Width="30" Height="20" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Text="0" TextAlignment="Center"/>
+        <TextBlock x:Name="id" Width="30" Height="20" Margin="0,5,0,0" VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Text="0" FontFamily="10" TextAlignment="Center"/>
     </Grid>
 </UserControl>

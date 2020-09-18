@@ -202,3 +202,17 @@ void Automata::MainPage::optimizeGraph()
 	this->r = ref new GraphManaged(this->g);
 	this->r->Optimise(p1, p2, p3);
 }
+
+
+void Automata::MainPage::BoardHolder_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+	auto Sender = dynamic_cast<Pivot^>(sender);
+	if (Sender->SelectedIndex == 2) {
+		Start_slect_grid->Visibility == Windows::UI::Xaml::Visibility::Collapsed;
+		End_slect_grid->Visibility == Windows::UI::Xaml::Visibility::Collapsed;
+	}
+	else {
+		Start_slect_grid->Visibility == Windows::UI::Xaml::Visibility::Visible;
+		End_slect_grid->Visibility == Windows::UI::Xaml::Visibility::Visible;
+	}
+}

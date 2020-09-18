@@ -17,6 +17,7 @@ namespace Automata {
 		IMap<int, IMap<String^, IVector<int>^>^>^ edges;
 		IMap<int, IVector<int>^>^ getUniquePairs();
 		IMap<int, IVector<int>^>^ getPairs();
+		IVector<int>^ getNodes();
 		IMap<int, IVector<int>^>^ uniquepairs;
 		IMap<int, IVector<int>^>^ pairs;
 		graph g;
@@ -25,6 +26,7 @@ namespace Automata {
 		GraphManaged^ ConvertToManaged();
 	public:
 		event Modified^ ModifiedEvent;
+		event Modified^ UpdateCompleteEvent;
 		GraphManaged(String^ data);
 		GraphManaged(GraphManaged^ source);
 		GraphManaged(IMap<int, IMap<String^, IVector<int>^>^>^ e, IMap<int, int>^ b, IVector<int>^ n);
@@ -68,6 +70,7 @@ namespace Automata {
 			this->Boundaries->Insert(i, rank);
 			if (!isEnd) this->g.end.erase(i);
 			else this->g.end[i] = true;
+			UpdateCompleteEvent(this);
 		}
 		void StartNodeSetState(int i, bool isStart) {
 			if (!this->Boundaries->HasKey(i)) this->Boundaries->Insert(i, 0);
@@ -77,6 +80,7 @@ namespace Automata {
 			this->Boundaries->Insert(i, rank);
 			if (!isStart) this->g.start.erase(i);
 			else this->g.start.insert(i);
+			UpdateCompleteEvent(this);
 		}
 	};
 }

@@ -55,11 +55,28 @@ IMap<int, IVector<int>^>^ Automata::GraphManaged::getPairs()
 	return result;
 }
 
+IVector<int>^ Automata::GraphManaged::getNodes()
+{
+	std::set<int> nodeset;
+	for (auto node : this->edges) {
+		uint32 index;		
+		nodeset.insert(node->Key);
+		for (auto edge : node->Value) {
+			for (int dest : edge->Value) {
+				nodeset.insert(dest);
+			}
+		}
+	}
+	return ref new Vector<int>(nodeset.begin(),nodeset.end());
+}
+
 void Automata::GraphManaged::OnModifiedEvent(Object^ sender)
 {
 	pairs =this->getPairs();
 	uniquepairs = this->getUniquePairs();
+	nodes = this->getNodes();
 	UpdateUnderLayingNativeRepr();
+	UpdateCompleteEvent(this);
 }
 
 Automata::GraphManaged::GraphManaged(String^ data)
@@ -108,14 +125,13 @@ void Automata::GraphManaged::UpdateUnderLayingNativeRepr()
 			}
 		}
 	}
-	/*
 	for (auto nodes : this->boundaries) {
 		bool isStart = nodes->Value == 1 || nodes->Value == 3;
 		bool isEnd = nodes->Value >= 2;
 		if (isStart) r.start.insert(nodes->Key);
 		if (isEnd) r.end[nodes->Key] = true;
 	}
-	*/
+	this->g = graph(r);
 }
 
 GraphManaged^ Automata::GraphManaged::ConvertToManaged()

@@ -70,6 +70,11 @@ namespace Automata
 				}
 				else if (v && type != NodeType::StartingNode) {
 					this->type = NodeType::EndingNode;
+				} else if (!v && type == NodeType::StartingNode) {
+					this->type = NodeType::StartingNode;
+				}
+				else if (!v && type != NodeType::StartingNode) {
+					this->type = NodeType::OrdinaryNode;
 				};
 			}
 		}
@@ -81,7 +86,12 @@ namespace Automata
 				}
 				else if(v && type != NodeType::EndingNode) {
 					this->type = NodeType::StartingNode;
-				};
+				}else if (!v && type == NodeType::EndingNode) {
+					this->type = NodeType::EndingNode;
+				}
+				else if (!v && type != NodeType::EndingNode) {
+					this->type = NodeType::OrdinaryNode;
+				};;
 			}
 		}
 		void update();

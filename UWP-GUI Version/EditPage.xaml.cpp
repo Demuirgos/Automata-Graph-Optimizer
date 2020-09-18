@@ -5,6 +5,7 @@
 
 #include "pch.h"
 #include "EditPage.xaml.h"
+#include "CanvasRenderer.xaml.h"
 
 using namespace Automata;
 
@@ -25,8 +26,10 @@ EditPage::EditPage()
 {
 	InitializeComponent();
 	g = ref new GraphManaged();
+	this->Board->Graph = this->g;
 	this->separator->RenderTransform = ref new TranslateTransform();
 	g->ModifiedEvent += ref new Automata::Modified(this, &Automata::EditPage::OnModifiedEvent);
+	g->UpdateCompleteEvent += ref new Automata::Modified(this, &Automata::EditPage::OnUpdateCompleteEvent);
 }
 
 void Automata::EditPage::OnModifiedEvent(Object^ sender)
@@ -37,6 +40,7 @@ void Automata::EditPage::OnModifiedEvent(Object^ sender)
 		this->EdgeStart->Items->Append(node.ToString());
 		this->EdgeEnd->Items->Append(node.ToString());
 	}
+	this->Board->start(5);
 }
 
 
@@ -48,12 +52,12 @@ void Automata::EditPage::SplitView_PaneClosing(Windows::UI::Xaml::Controls::Spli
 
 void Automata::EditPage::AddEdge_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	if (this->EdgeStart->SelectedIndex != -1 && this->EdgeEnd->SelectedIndex != -1 && this->EdgeLabel->Text != "") {
+	if (this->EdgeStart->SelectedIndex == -1 && this->EdgeEnd->SelectedIndex == -1 && this->EdgeLabel->Text == "") {
 		Methods::MessageBoxInvoke("Missing Data", "Please Fill All the required Data!", "OK");
 	}
 	else {
 		auto s = Methods::StringToInt(dynamic_cast<String^>(this->EdgeStart->SelectedItem));
-		auto e = Methods::StringToInt(dynamic_cast<String^>(this->EdgeStart->SelectedItem));
+		auto e = Methods::StringToInt(dynamic_cast<String^>(this->EdgeEnd->SelectedItem));
 		this->g->insert(s, e, this->EdgeLabel->Text);
 	}
 }
@@ -74,9 +78,9 @@ void Automata::EditPage::AddNode_Click(Platform::Object^ sender, Windows::UI::Xa
 			Methods::MessageBoxInvoke("Duplciate Found", "A node with the same label already exists!","OK");
 		}
 		else {
-			g->insert(s, s, "0");
 			int boundary = isStart + (isEnd << 1);
 			g->Boundaries->Insert(s, boundary);
+			g->insert(s, s, "0");
 		}
 	}
 }
@@ -113,4 +117,51 @@ void Automata::EditPage::separator_PointerEntered(Platform::Object^ sender, Wind
 void Automata::EditPage::separator_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
 {
 	Window::Current->CoreWindow->PointerCursor = ref new Windows::UI::Core::CoreCursor(Windows::UI::Core::CoreCursorType::Arrow, 0);
+}
+
+
+void Automata::EditPage::OnUpdateCompleteEvent(Platform::Object^ sender)
+{
+	this->TextInput->Text = this->g->Data;
+}
+
+
+void Automata::EditPage::Stop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	this->Board->stop();
+}
+
+
+void Automata::EditPage::Render_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	this->Board->start();
+}
+
+
+void Automata::EditPage::Manage_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	this->Board->EnableManagementMode(true);
+}
+
+
+void Automata::EditPage::Optimise_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+
+}
+
+
+void Automata::EditPage::Draw_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+
+}
+
+
+void Automata::EditPage::Clear_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	this->g = ref new GraphManaged();
+	this->Board->Graph = this->g;
+	g->ModifiedEvent += ref new Automata::Modified(this, &Automata::EditPage::OnModifiedEvent);
+	g->UpdateCompleteEvent += ref new Automata::Modified(this, &Automata::EditPage::OnUpdateCompleteEvent);
+	this->TextInput->Text = "";
+	this->Board->clear();
 }
