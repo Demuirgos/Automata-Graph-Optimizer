@@ -30,6 +30,9 @@ namespace Automata
 				initialize();
 			}
 		}
+		property float ScaleFactor {
+			float get() { return this->ZoomController->ScaleX; }
+		}
 		void start();
 		void start(int duration);
 		void stop();

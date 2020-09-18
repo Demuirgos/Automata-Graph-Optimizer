@@ -66,7 +66,7 @@
                         <SplitView.Pane>
                             <local:CanvasRenderer x:Name="Result" Width="1100" RequestedTheme="Light" Background="White" Height="{Binding ElementName=BoardsHolder,Path=Height}" VerticalAlignment="Top"/>
                         </SplitView.Pane>
-                        <local:CanvasRenderer x:Name="Board" Width="1100" RequestedTheme="Light" Background="White" Height="{Binding ElementName=BoardsHolder,Path=Height}" VerticalAlignment="Top"/>
+                        <local:CanvasRenderer x:Name="Board" Width="1100" RequestedTheme="Light" Background="White" Height="700" VerticalAlignment="Top"/>
                     </SplitView>
                     <Rectangle x:Name="separator" VerticalAlignment="Center" ManipulationDelta="separator_ManipulationDelta" ManipulationMode="All" Height="30" PointerEntered="separator_PointerEntered" PointerExited="separator_PointerExited">
                         <Rectangle.Fill>

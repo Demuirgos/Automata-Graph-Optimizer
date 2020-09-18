@@ -187,10 +187,9 @@ void Automata::EditPage::OnNodeStatusUpdated(int s, bool isEnd, bool isStart)
 
 void Automata::EditPage::OnSizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
 {
-	this->Board->Height = e->NewSize.Height; this->Result->Height = e->NewSize.Height;
-	this->Board->Width = e->NewSize.Width; this->Result->Height = e->NewSize.Height;
+	/*this->Board->Height = e->NewSize.Height;*/ this->Result->Height = e->NewSize.Height;
+	/*this->Board->Width = e->NewSize.Width;*/ this->Result->Height = e->NewSize.Height;
 }
-
 void Automata::EditPage::OnPaneOpened(Windows::UI::Xaml::Controls::SplitView^ sender, Platform::Object^ args)
 {
 	bool p1 = this->optimisatioMode > 0; bool p2 = this->optimisatioMode > 1; bool p3 = this->optimisatioMode > 2;
