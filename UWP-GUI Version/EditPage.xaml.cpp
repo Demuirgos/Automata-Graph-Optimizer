@@ -191,7 +191,6 @@ void Automata::EditPage::OnSizeChanged(Platform::Object^ sender, Windows::UI::Xa
 	this->Board->Width = e->NewSize.Width; this->Result->Height = e->NewSize.Height;
 }
 
-
 void Automata::EditPage::OnPaneOpened(Windows::UI::Xaml::Controls::SplitView^ sender, Platform::Object^ args)
 {
 	bool p1 = this->optimisatioMode > 0; bool p2 = this->optimisatioMode > 1; bool p3 = this->optimisatioMode > 2;

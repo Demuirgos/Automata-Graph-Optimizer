@@ -215,7 +215,7 @@ void Automata::MainPage::OnEndUnchecked(Platform::Object^ sender, Windows::UI::X
 {
 	auto nodeId = Methods::StringToInt(((CheckBox^)sender)->Name);
 	int rank = this->g->Boundaries->Lookup(nodeId);
-	this->g->NodeSetState(nodeId, rank - 1);
+	this->g->NodeSetState(nodeId, rank - 2);
 
 }
 

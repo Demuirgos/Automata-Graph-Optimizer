@@ -47,7 +47,7 @@
     <Image Include="Assets\Square44x44Logo.scale-400.png">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Assets\separator.png">
+    <Image Include="Assets\EditPageSeparator.png">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>

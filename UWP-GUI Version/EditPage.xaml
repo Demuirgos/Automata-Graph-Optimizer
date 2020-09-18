@@ -70,7 +70,7 @@
                     </SplitView>
                     <Rectangle x:Name="separator" VerticalAlignment="Center" ManipulationDelta="separator_ManipulationDelta" ManipulationMode="All" Height="30" PointerEntered="separator_PointerEntered" PointerExited="separator_PointerExited">
                         <Rectangle.Fill>
-                            <ImageBrush ImageSource="/Assets/separator.png" />
+                            <ImageBrush ImageSource="/Assets/EditPageSeparator.png" Stretch="Fill" />
                         </Rectangle.Fill>
                     </Rectangle>
                     <TextBox x:Name="TextInput" Background="White" Height="225" AcceptsReturn="True" Margin="0,0,0,25" VerticalAlignment="Bottom" RequestedTheme="Light"/>
