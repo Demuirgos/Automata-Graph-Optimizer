@@ -31,29 +31,35 @@ EditPage::EditPage()
 	textChanging = this->TextInput->TextChanged += ref new Windows::UI::Xaml::Controls::TextChangedEventHandler(this, &Automata::EditPage::OnTextChanged);
 	this->BoardsHolder->SizeChanged += ref new Windows::UI::Xaml::SizeChangedEventHandler(this, &Automata::EditPage::OnSizeChanged);
 	this->BoardsHolder->PaneOpened += ref new Windows::Foundation::TypedEventHandler<Windows::UI::Xaml::Controls::SplitView^, Platform::Object^>(this, &Automata::EditPage::OnPaneOpened);
-	InitGraph("");
+	InitGraph();
 }
 
-void Automata::EditPage::OnModifiedEvent(Object^ sender)
+void Automata::EditPage::OnModifiedEvent(Object^ sender, bool isComplete)
 {
 	this->EdgeStart->Items->Clear();
 	this->EdgeEnd->Items->Clear();
+	this->NodeName->Items->Clear();
+	this->src->Items->Clear();
+	this->weight->Items->Clear();
+	this->dst->Items->Clear();
 	for (int node : this->g->Nodes) {
 		this->EdgeStart->Items->Append(node.ToString());
 		this->EdgeEnd->Items->Append(node.ToString());
+		this->NodeName->Items->Append(node.ToString());
+	}
+	for (auto nodes : this->g->Edges) {
+		this->src->Items->Append(nodes->Key.ToString());
 	}
 	this->Board->start(5);
 }
 
-void Automata::EditPage::InitGraph(String^ data)
+void Automata::EditPage::InitGraph()
 {
-	if (data == "")
-		g = ref new GraphManaged();
-	else
-		g = ref new GraphManaged(data);
+	g = ref new GraphManaged();
 	this->Board->Graph = this->g;
 	g->ModifiedEvent += ref new Automata::Modified(this, &Automata::EditPage::OnModifiedEvent);
-	g->UpdateCompleteEvent += ref new Automata::Modified(this, &Automata::EditPage::OnUpdateCompleteEvent);
+	g->UpdateCompleteEvent += ref new Automata::Completion(this, &Automata::EditPage::OnUpdateCompleteEvent);
+	
 }
 
 void Automata::EditPage::SplitView_PaneClosing(Windows::UI::Xaml::Controls::SplitView^ sender, Windows::UI::Xaml::Controls::SplitViewPaneClosingEventArgs^ args)
@@ -161,7 +167,7 @@ void Automata::EditPage::Clear_Click(Platform::Object^ sender, Windows::UI::Xaml
 void Automata::EditPage::OnTextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e)
 {
 	this->data = this->TextInput->Text;
-	InitGraph(data);
+	g->Parse(data);
 	this->Board->start(5);
 }
 
@@ -223,5 +229,57 @@ void Automata::EditPage::PrevUpdate_Toggled(Platform::Object^ sender, Windows::U
 		linearStroke->GradientStops->Append(stop3);
 		this->NodePrev->Stroke = linearStroke;
 		break;
+	}
+}
+
+void Automata::EditPage::DeleteButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	bool ValidOperation = true;
+	if (!this->Mode->IsOn) {
+		if (this->src->SelectedIndex != -1 && this->dst->SelectedIndex != -1 && this->weight->SelectedIndex != 1) {
+			this->g->removeEdge(Methods::StringToInt(dynamic_cast<String^>(this->src->SelectedItem)), Methods::StringToInt(dynamic_cast<String^>(this->dst->SelectedItem)), dynamic_cast<String^>(this->weight->SelectedItem));
+		}
+		else {
+			ValidOperation = false;
+		}
+	}
+	else {
+		if (this->NodeName->SelectedIndex != 1) {
+			this->g->removeNode(Methods::StringToInt(dynamic_cast<String^>(this->NodeName->SelectedItem)));
+		}
+		else {
+			ValidOperation = false;
+		}
+	}
+	if (ValidOperation == false) Methods::MessageBoxInvoke("Missing Data", "Please Chose the Required Data", "OK");
+}
+
+void Automata::EditPage::Mode_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	if (this->Mode->IsOn) {
+		this->EdjDeleteTools->Visibility = ::Visibility::Collapsed;
+		this->NodDeleteTools->Visibility = ::Visibility::Visible;
+	}
+	else {
+		this->EdjDeleteTools->Visibility = ::Visibility::Visible;
+		this->NodDeleteTools->Visibility = ::Visibility::Collapsed; 
+	}
+}
+
+void Automata::EditPage::src_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+	for (auto Edge : this->g->Edges->Lookup(Methods::StringToInt(dynamic_cast<String^>(this->src->SelectedItem)))) {
+		this->weight->Items->Append(Edge->Key);
+	}
+}
+
+void Automata::EditPage::weight_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
+{
+	if (this->weight->Items->Size > 0) {
+		auto src = Methods::StringToInt(dynamic_cast<String^>(this->src->SelectedItem));
+		auto wgh = dynamic_cast<String^>(this->weight->SelectedItem);
+		for (int Destination : this->g->Edges->Lookup(src)->Lookup(wgh)) {
+			this->dst->Items->Append(Destination.ToString());
+		}
 	}
 }

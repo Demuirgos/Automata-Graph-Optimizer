@@ -75,5 +75,6 @@ namespace Automata
 		void Board_PointerMoved(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 		void Onlocked(Automata::node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 		void OnNodeStatusUpdated(int s, bool isEnd, bool isStart);
+		void Ondeleted(Automata::node^ sender);
 	};
 }

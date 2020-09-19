@@ -115,3 +115,23 @@ void Automata::node::Hook_PointerReleased(Platform::Object^ sender, Windows::UI:
 {
 	this->released(this, e);
 }
+
+
+void Automata::node::Delete_Tapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e)
+{
+	deleted(this);
+}
+
+
+void Automata::node::Delete_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	if (editing)
+		dynamic_cast<SymbolIcon^>(sender)->Opacity = 100;
+}
+
+
+void Automata::node::Delete_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e)
+{
+	if (editing)
+		dynamic_cast<SymbolIcon^>(sender)->Opacity = 0;
+}

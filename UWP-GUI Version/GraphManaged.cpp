@@ -91,14 +91,23 @@ IMap<int, IMap<int, String^>^>^ Automata::GraphManaged::getMatrix()
 	return _matrix;
 }
 
-void Automata::GraphManaged::OnModifiedEvent(Object^ sender)
+void Automata::GraphManaged::OnModifiedEvent(Object^ sender, bool isComplete)
 {
 	pairs =this->getPairs();
 	uniquepairs = this->getUniquePairs();
 	nodes = this->getNodes();
 	matrix = this->getMatrix();
 	UpdateUnderLayingNativeRepr();
-	UpdateCompleteEvent(this);
+	if(isComplete)
+		UpdateCompleteEvent(this);
+}
+
+void Automata::GraphManaged::Parse(String^ data)
+{
+	this->g = graph(Methods::ToCppString(data));
+	this->ModifiedEvent += ref new Automata::Modified(this, &Automata::GraphManaged::OnModifiedEvent);
+	this->MakeCopy(this->ConvertToManaged());
+	ModifiedEvent(this,false);
 }
 
 Automata::GraphManaged::GraphManaged(String^ data)
@@ -135,7 +144,7 @@ void Automata::GraphManaged::insert(int s, int f, String^ w)
 	if (!destinations->IndexOf(f, &index)) {
 		destinations->Append(f);
 	}
-	ModifiedEvent(this);
+	ModifiedEvent(this,true);
 }
 
 void Automata::GraphManaged::UpdateUnderLayingNativeRepr()
@@ -202,10 +211,37 @@ GraphManaged::GraphManaged() {
 	this->ModifiedEvent += ref new Automata::Modified(this, &Automata::GraphManaged::OnModifiedEvent);
 }
 
+void Automata::GraphManaged::removeNode(int i)
+{
+	uint32 index;
+	this->edges->Remove(i);
+	for (auto node : this->edges) {
+		for (auto edge : node->Value) {
+			if (edge->Value->IndexOf(i, &index)) {
+				edge->Value->RemoveAt(index);
+			}
+		}
+	}
+	this->boundaries->Remove(i);
+	if (nodes->IndexOf(i, &index))
+		this->nodes->RemoveAt(index);
+	ModifiedEvent(this, true);
+}
+
+void Automata::GraphManaged::removeEdge(int s, int d, String^ w)
+{
+	uint32 index;
+	auto src = this->edges->Lookup(s)->Lookup(w);
+	if (src->IndexOf(d, &index)) {
+		src->RemoveAt(index);
+	}
+	ModifiedEvent(this, true);
+}
+
 void Automata::GraphManaged::Clear()
 {
 	this->edges->Clear();
 	this->nodes->Clear();
 	this->boundaries->Clear();
-	OnModifiedEvent(this);
+	OnModifiedEvent(this, true);
 }

@@ -123,6 +123,7 @@ void Automata::CanvasRenderer::initialize()
 		Node->RightTapTokenToken = Node->RightTapped += ref new Windows::UI::Xaml::Input::RightTappedEventHandler(this, &Automata::CanvasRenderer::OnRightTapped);
 		Node->hooked += ref new Automata::MouseHookPressed(this, &Automata::CanvasRenderer::Onhooked);
 		Node->locked += ref new Automata::MouseHookPressed(this, &Automata::CanvasRenderer::Onlocked);
+		Node->deleted += ref new Automata::DeleteRequested(this, &Automata::CanvasRenderer::Ondeleted);
 		this->Layout->Insert(nodePair.ToString(), Node);
 		Node->Editing = this->editMode;
 		Node->moved += ref new Automata::positionChanged(this, &Automata::CanvasRenderer::OnNodemoved);
@@ -394,4 +395,10 @@ void Automata::CanvasRenderer::Onlocked(Automata::node^ sender, Windows::UI::Xam
 void Automata::CanvasRenderer::OnNodeStatusUpdated(int s, bool isEnd, bool isStart)
 {
 	this->Layout->Lookup(s.ToString())->update();
+}
+
+void Automata::CanvasRenderer::Ondeleted(Automata::node^ sender)
+{
+	if(this->editMode)
+		this->g->removeNode(Methods::StringToInt(sender->Label));
 }

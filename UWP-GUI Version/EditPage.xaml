@@ -20,44 +20,65 @@
                         <SymbolIcon Symbol="Bookmarks" />
                     </Button>
                     <Grid x:Name="ToolBox" Visibility="Collapsed" Margin="0,50">
-                        <ListView Visibility="Visible" Header="ToolBox" Height="500" VerticalAlignment="Top" >
-                            <ListViewItem>
-                                <StackPanel Orientation="Horizontal">
-                                    <StackPanel Margin="10">
-                                        <TextBlock Text="Node :"/>
-                                        <Grid Background="White">
-                                            <Ellipse x:Name="NodePrev" Margin="5" Width="100" Height="100" StrokeThickness="10" Stroke="Black"/>
-                                            <TextBlock Margin="65,35,0,0" FontSize="24" Width="75" TextWrapping="Wrap" Foreground="Black" Text="{Binding ElementName=NodeLabel,Path=Text}"/>
-                                        </Grid>
-                                        <TextBox x:Name="NodeLabel" Header="Label : " Width="150"/>
-                                    </StackPanel>
-                                    <StackPanel Margin="10" Width="153">
-                                        <StackPanel>
-                                            <ToggleSwitch x:Name="isStart" Header="Start : " Toggled="PrevUpdate_Toggled"/>
-                                            <ToggleSwitch x:Name="isEnd" Header="End : " Toggled="PrevUpdate_Toggled"/>
-                                            <AppBarButton x:Name="AddNode" Icon="Add" Label="Add" Click="AddNode_Click"/>
+                        <ScrollViewer>
+                            <ListView  Header="ToolBox" Height="700" VerticalAlignment="Top" >
+                                <ListViewItem>
+                                    <StackPanel Orientation="Horizontal">
+                                        <StackPanel Margin="10">
+                                            <TextBlock Text="Node :"/>
+                                            <Grid Background="White">
+                                                <Ellipse x:Name="NodePrev" Margin="5" Width="100" Height="100" StrokeThickness="10" Stroke="Black"/>
+                                                <TextBlock Margin="65,35,0,0" FontSize="24" Width="75" TextWrapping="Wrap" Foreground="Black" Text="{Binding ElementName=NodeLabel,Path=Text}"/>
+                                            </Grid>
+                                            <TextBox x:Name="NodeLabel" Header="Label : " Width="150"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="10" Width="153">
+                                            <StackPanel>
+                                                <ToggleSwitch x:Name="isStart" Header="Start : " Toggled="PrevUpdate_Toggled"/>
+                                                <ToggleSwitch x:Name="isEnd" Header="End : " Toggled="PrevUpdate_Toggled"/>
+                                                <AppBarButton x:Name="AddNode" Icon="Add" Label="Add" Click="AddNode_Click"/>
+                                            </StackPanel>
                                         </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
-                            </ListViewItem>
-                            <MenuFlyoutSeparator Width="300"/>
-                            <ListViewItem>
-                                <StackPanel>
-                                    <TextBlock Text="Edge :"/>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBox x:Name="EdgeLabel" Header="Label" Width="230"/>
-                                        <Button x:Name="AddEdge" VerticalAlignment="Bottom" Margin="5,0,0,0" Click="AddEdge_Click">
-                                            <SymbolIcon Symbol="Add"/>
-                                        </Button>
+                                </ListViewItem>
+                                <MenuFlyoutSeparator Width="300"/>
+                                <ListViewItem>
+                                    <StackPanel>
+                                        <TextBlock Text="Edge :"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBox x:Name="EdgeLabel" Header="Label" Width="230"/>
+                                            <Button x:Name="AddEdge" VerticalAlignment="Bottom" Margin="5,0,0,0" Click="AddEdge_Click">
+                                                <SymbolIcon Symbol="Add"/>
+                                            </Button>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <ComboBox x:Name="EdgeStart" Header="Start" Width="130" Margin="5"/>
+                                            <ComboBox x:Name="EdgeEnd" Header="End :" Width="130"  Margin="5"/>
+                                        </StackPanel>
                                     </StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <ComboBox x:Name="EdgeStart" Header="Start" Width="130" Margin="5"/>
-                                        <ComboBox x:Name="EdgeEnd" Header="End :" Width="130"  Margin="5"/>
+                                </ListViewItem>
+                                <MenuFlyoutSeparator Width="300"/>
+                                <ListViewItem>
+                                    <StackPanel>
+                                        <Grid>
+                                            <TextBlock Text="Deletions :" Width="235" HorizontalAlignment="Left"/>
+                                            <ToggleSwitch x:Name="Mode" Toggled="Mode_Toggled" HorizontalAlignment="Center" OnContent="Edge Mode" OffContent="Node Mode" Margin="50,0,0,0"/>
+                                            <Button x:Name="DeleteButton" HorizontalAlignment="Right" Click="DeleteButton_Click">
+                                                <SymbolIcon Symbol="Delete"/>
+                                            </Button>
+                                        </Grid>
+                                        <StackPanel  x:Name="EdjDeleteTools" Visibility="Visible" Orientation="Horizontal">
+                                            <ComboBox x:Name="src" Margin="0,0,0,0" Width="75" FontSize="14" Header="Source :" SelectionChanged="src_SelectionChanged"/>
+                                            <ComboBox x:Name="weight" Margin="10,0,0,0" Width="75" Header="Weight :" FontSize="14" SelectionChanged="weight_SelectionChanged"/>
+                                            <ComboBox x:Name="dst" Margin="10,0,0,0" Header="Destination :" FontSize="14" Width="105"/>
+                                        </StackPanel>
+                                        <StackPanel x:Name="NodDeleteTools" Visibility="Collapsed" Orientation="Horizontal">
+                                            <ComboBox x:Name="NodeName" Margin="0,0,0,0" Header="Name :" FontSize="14" Width="275"/>
+                                        </StackPanel>
                                     </StackPanel>
-                                </StackPanel>
-                            </ListViewItem>
-                            <MenuFlyoutSeparator Width="300"/>
-                        </ListView>
+                                </ListViewItem>
+                            </ListView>
+                        </ScrollViewer>
                     </Grid>
                 </Grid>
             </SplitView.Pane>

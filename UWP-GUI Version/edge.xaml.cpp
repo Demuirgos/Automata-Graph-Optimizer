@@ -45,7 +45,7 @@ void Automata::edge::update()
 		path = "M  0, 0 Q " + ((y > 0.2 || y < -0.2)?0:x/2).ToString() + "," + ((y>0.2 || y<-0.2)?y/2:x/4).ToString() + " " + x.ToString() + "," + y.ToString();
 	}
 	else
-		path = "M 0,5 A 15,15 0 1 1 5,5";
+		path = "M -3,1 A 11,11 0 1 1 1,1";
 	Geometry^ geo = ref new PathGeometry();
 	geo = dynamic_cast<Geometry^>(XamlBindingHelper::ConvertValue(Windows::UI::Xaml::Interop::TypeName(geo->GetType()), path));
 	this->InnerLine->Data = geo;

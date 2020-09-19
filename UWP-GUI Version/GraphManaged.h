@@ -7,7 +7,8 @@ using namespace Windows::Foundation::Collections;
 
 
 namespace Automata {
-	public delegate void Modified(Object^ sender);
+	public delegate void Modified(Object^ sender,bool fireCompletion);
+	public delegate void Completion(Object^ sender);
 	public ref class GraphManaged sealed
 	{
 	private:
@@ -23,16 +24,19 @@ namespace Automata {
 		IMap<int, IVector<int>^>^ uniquepairs;
 		IMap<int, IVector<int>^>^ pairs;
 		graph g;
-		void OnModifiedEvent(Object^ sender);
+		void OnModifiedEvent(Object^ sender, bool isC);
 		void UpdateUnderLayingNativeRepr();
 		GraphManaged^ ConvertToManaged();
 	public:
 		event Modified^ ModifiedEvent;
-		event Modified^ UpdateCompleteEvent;
+		event Completion^ UpdateCompleteEvent;
+		void Parse(String^ data);
 		GraphManaged(String^ data);
 		GraphManaged(GraphManaged^ source);
 		GraphManaged(IMap<int, IMap<String^, IVector<int>^>^>^ e, IMap<int, int>^ b, IVector<int>^ n);
 		GraphManaged();
+		void removeNode(int i);
+		void removeEdge(int s, int d,String^ w);
 		void Clear();
 		void insert(int s, int f, String^ w);
 		void Optimise(bool Phase1,bool Phase2, bool Phase3);

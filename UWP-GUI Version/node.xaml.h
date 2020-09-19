@@ -21,6 +21,7 @@ namespace Automata
 {
 	public delegate void positionChanged(node^ sender, Point newPos);
 	public delegate void MouseHookPressed(node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+	public delegate void DeleteRequested(node^ sender);
 	enum NodeType {
 		StartingNode,
 		EndingNode,
@@ -35,6 +36,7 @@ namespace Automata
 		event MouseHookPressed^ hooked;
 		event MouseHookPressed^ released;
 		event MouseHookPressed^ locked;
+		event DeleteRequested^ deleted;
 		node(String^ label, bool StartFlag, bool EndFlag, Point start);
 		node(String^ label, bool StartFlag, bool EndFlag, float size);
 		void Initialize();
@@ -153,5 +155,8 @@ namespace Automata
 		void Hook_PointerPressed(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 		void Hook_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 		void Hook_PointerReleased(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Delete_Tapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e);
+		void Delete_PointerEntered(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
+		void Delete_PointerExited(Platform::Object^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 };
 }
