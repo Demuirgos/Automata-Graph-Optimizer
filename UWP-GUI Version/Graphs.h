@@ -292,6 +292,26 @@ public:
 	void Compact() {
 		this->phase_four();
 	}
+	String^ rawData() {
+		String^ data = "digraph result{\n";
+		map<int, bool> marked;
+		for (auto node : this->node) {
+			if (this->start.find(node.first) != this->start.end()) {
+				data+= "s" + "->" + node.first.ToString() + ";\n";
+			}
+			for (auto edge : node.second) {
+				for (auto dest : edge.second) {
+					if (this->end[dest] && !marked[dest]) {
+						marked[dest] = true;
+						data +=node.first.ToString() + "->" + "f" + ";\n";
+					}
+					data += node.first.ToString() + "->" + dest.ToString() + " [label=\"" + Methods::FromCppString(edge.first) + "\"];\n";
+				}
+			}
+		}
+		data += "}";
+		return data;
+	}
 	String^ ToString() {
 		String^ accumulated = "";
 		this->Clean();

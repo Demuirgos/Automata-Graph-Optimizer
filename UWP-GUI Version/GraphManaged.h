@@ -61,6 +61,9 @@ namespace Automata {
 		property String^ Data {
 			String^ get() { return this->g.ToString(); }
 		}
+		property String^ RawData {
+			String^ get() { return this->g.rawData(); }
+		}
 		bool isStartNode(int i) { return this->boundaries->Lookup(i) == 1 || this->boundaries->Lookup(i) == 3; }
 		bool isEndNode(int i) { return this->boundaries->Lookup(i) >= 2; }
 		bool isValid(){

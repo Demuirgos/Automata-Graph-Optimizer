@@ -134,7 +134,7 @@ void Automata::EditPage::separator_PointerExited(Platform::Object^ sender, Windo
 void Automata::EditPage::OnUpdateCompleteEvent(Platform::Object^ sender)
 {
 	this->TextInput->TextChanged -= textChanging;
-	this->TextInput->Text = this->g->Data;
+	this->TextInput->Text = this->g->RawData;
 	textChanging = this->TextInput->TextChanged += ref new Windows::UI::Xaml::Controls::TextChangedEventHandler(this, &Automata::EditPage::OnTextChanged);
 }
 
