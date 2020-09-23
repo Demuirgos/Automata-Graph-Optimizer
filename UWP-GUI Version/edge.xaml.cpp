@@ -56,7 +56,6 @@ void Automata::edge::update()
 	Geometry^ geo = ref new PathGeometry();
 	geo = dynamic_cast<Geometry^>(XamlBindingHelper::ConvertValue(Windows::UI::Xaml::Interop::TypeName(geo->GetType()), path));
 	this->InnerLine->Data = geo;
-	this->Label->Margin = Thickness(((this->End.X + this->Start.X)/2)- this->Start.X + 10, ((this->End.Y + this->Start.Y) / 2) - this->Start.Y,0,0);
 	
 }
 

@@ -10,7 +10,7 @@
     <Grid>
         <Path x:Name="InnerLine" Stroke="Black" StrokeThickness="3">
             <ToolTipService.ToolTip>
-                <ToolTip x:Name="Label" Content="" FontSize="16"/>
+                <ToolTip x:Name="Label" Content="" FontSize="16" />
             </ToolTipService.ToolTip>
         </Path>
         <Path x:Name="ArrowHead" Stroke="Black" StrokeThickness="2"/>
