@@ -255,19 +255,13 @@ public:
 					}
 					this->insert(n[0], n[1], list[3].str());
 				}
-			else if (regex_search(line, list, regex("s|S *-> *([0-9]+)"))) {
-						int n = 0;
-						for (int i = 0; i < list[1].str().length(); i++) {
-							n = n * 10 + list[1].str()[i] - '0';
-						}
-						this->start.insert(n);
+			else if (regex_search(line, list, regex("(s|S) *-> *([0-9]+) *;"))) {
+					int n = Methods::StringToInt(Methods::FromCppString(list[2].str()));
+					this->start.insert(n);
 				}
-			else if (regex_search(line, list, regex("([0-9]+) *-> *f|F"))) {
-						int n = 0;
-						for (int i = 0; i < list[1].str().length(); i++) {
-							n = n * 10 + list[1].str()[i] - '0';
-						}
-						this->end[n] = true;
+			else if (regex_search(line, list, regex("([0-9]+) *-> *f|F *;"))) {
+					int n = Methods::StringToInt(Methods::FromCppString(list[1].str()));
+					this->end[n] = true;
 				}
 			firstLine = 0;
 		}
