@@ -63,7 +63,7 @@ namespace Automata
 			void set(String^ v) { this->_Label = v; }
 		}
 		property float Size {
-			float get() { return 60; }
+			float get() { return this->Height; }
 		}
 		property bool Editing {
 			void set(bool v) { this->editing = v; }

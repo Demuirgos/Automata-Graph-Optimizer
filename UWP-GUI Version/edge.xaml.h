@@ -60,5 +60,7 @@ namespace Automata
 		String^ weight;
 		void update();
 		void Onmoved(node^ sender,Windows::Foundation::Point newPos);
+		Point getCoordinates(Point s,Point f,Point c,float t);
+		Point setRotate(Point p, Point c, float angle);
 	};
 }
