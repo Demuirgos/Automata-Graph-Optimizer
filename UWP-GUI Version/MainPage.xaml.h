@@ -50,7 +50,6 @@ namespace Automata
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void TextInput_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e);
 		void InsertText_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-		void InputText_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e);
 		void RenderButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void Holder_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
 		void OnStartChecked(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
@@ -60,5 +59,6 @@ namespace Automata
 		void optimizeGraph();
 		void BoardHolder_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 		void DFA_to_minDFA_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void InnerTextOpener_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 	};
 }

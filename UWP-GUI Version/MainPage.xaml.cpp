@@ -95,23 +95,27 @@ void Automata::MainPage::DFA_to_minDFA_Toggled(Platform::Object^ sender, Windows
 
 void Automata::MainPage::getRender()
 {
-	if (this->Holder->SelectedIndex == 0) {
-		this->InputBoard->clear();
-		this->InputBoard->Graph = ref new GraphManaged(this->g);
-		this->InputBoard->start();
+	if (!this->g->isValid()) {
+		ContentDialog^ Warning = ref new ContentDialog();
+		String^ MSGContent = ref new String();
+		MSGContent = "Please chose Starting and Ending Nodes";
+		Warning->Title = "Missing Arguments";
+		Warning->PrimaryButtonText = "OK";
+		Warning->Content = MSGContent;
+		Concurrency::create_task(Warning->ShowAsync());
 	}
-	else if(this->Holder->SelectedIndex == 1) {
+	else {
 		optimizeGraph();
 		this->ResultBoard->clear();
 		this->ResultBoard->Graph = ref new GraphManaged(this->r);
 		this->ResultBoard->start();
 	}
+	optimizeGraph();
 }
 
 void Automata::MainPage::parseText()
 {
 	this->TextInput->Text = this->data;
-	this->InputText->Text = this->data;
 	FlyoutBase::ShowAttachedFlyout(dynamic_cast<FrameworkElement^>(this->InsertText));
 	fillUnderlayingData();
 }
@@ -161,7 +165,6 @@ void Automata::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xam
 
 void Automata::MainPage::TextInput_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e)
 {
-	this->InputText->Text = dynamic_cast<TextBox^>(sender)->Text;
 	this->data = dynamic_cast<TextBox^>(sender)->Text;
 	fillUnderlayingData();
 }
@@ -171,13 +174,6 @@ void Automata::MainPage::InsertText_Click(Platform::Object^ sender, Windows::UI:
 	FlyoutBase::ShowAttachedFlyout(dynamic_cast<FrameworkElement^>(sender));
 }
 
-void Automata::MainPage::InputText_TextChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::TextChangedEventArgs^ e)
-{
-	this->TextInput->Text = dynamic_cast<TextBox^>(sender)->Text;
-	this->data = dynamic_cast<TextBox^>(sender)->Text;
-	fillUnderlayingData();
-}
-
 void Automata::MainPage::RenderButton_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	getRender();
@@ -185,8 +181,7 @@ void Automata::MainPage::RenderButton_Click(Platform::Object^ sender, Windows::U
 
 void Automata::MainPage::Holder_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
 {
-	auto castedSender = dynamic_cast<FlipView^>(sender);
-	this->InputBoard->Width = castedSender->ActualWidth; this->InputBoard->Height = castedSender->ActualHeight;
+	auto castedSender = dynamic_cast<Grid^>(sender);
 	this->ResultBoard->Width = castedSender->ActualWidth; this->ResultBoard->Height = castedSender->ActualHeight;
 }
 
@@ -223,13 +218,15 @@ void Automata::MainPage::optimizeGraph()
 {
 	bool p1 = E_NFA_to_NFA->IsOn, p2 = NFA_to_DFA->IsOn, p3 = DFA_to_minDFA->IsOn;
 	this->r = ref new GraphManaged(this->g);
-	this->r->Optimise(p1, p2, p3);
+	if (p1 || p2 || p3) {
+		this->r->Optimise(p1, p2, p3);
+	}
 }
 
 void Automata::MainPage::BoardHolder_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
 {
 	auto Sender = dynamic_cast<Pivot^>(sender);
-	if (Sender->SelectedIndex == 2) {
+	if (Sender->SelectedIndex == 1) {
 		Start_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
 		End_slect_grid->Visibility = Windows::UI::Xaml::Visibility::Collapsed; 
 		Button->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
@@ -241,3 +238,9 @@ void Automata::MainPage::BoardHolder_SelectionChanged(Platform::Object^ sender, 
 	}
 }
 
+
+
+void Automata::MainPage::InnerTextOpener_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	FlyoutBase::ShowAttachedFlyout(dynamic_cast<FrameworkElement^>(sender));
+}
