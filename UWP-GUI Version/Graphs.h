@@ -77,7 +77,7 @@ private:
 				for (int k = 0; k < this->language.size(); k++) {
 					for (int s = 0; s < classes.size(); s++) {
 						for (auto node : classes[s]) {
-							for (auto nodes : this->node[j][this->language[k]]) {
+							for (int nodes : this->node[j][this->language[k]]) {
 								if (node == nodes) signature[k] = s;
 							}
 						}
@@ -129,11 +129,9 @@ private:
 	void phase_three() {
 		vector<set<int>> classes(2);
 		vector<vector<int>> signatures;
-		for (map<int, map<string, set<int>>>::iterator i = this->node.begin(); i != this->node.end(); i++) {
-			if (!this->end[i->first]) classes[0].insert(i->first);
-		}
-		for (map<int, bool>::iterator i = this->end.begin(); i != this->end.end(); i++) {
-			if (i->second) classes[1].insert(i->first);
+		for (auto i :this->nodes) {
+			if (!this->end[i]) classes[0].insert(i);
+			else classes[1].insert(i);
 		}
 		while (classes != minimize(classes, signatures))classes = minimize(classes, signatures);
 		makeCopy(graph(classes, signatures, this->language, this->start,this->end));
@@ -159,13 +157,12 @@ private:
 	void write(int i, String^& accumulated) {
 		if (!this->Processed[i]) {
 			this->Processed[i] = true;
+			if (this->end[i]) {
+				accumulated += i.ToString() + "->" + "f;\n";
+			}
 			for (map<string, set<int>>::iterator j = this->node[i].begin(); j != this->node[i].end(); j++) {
 				for (auto d : j->second) {
 					accumulated += i.ToString() + "->" + d.ToString() + " [label=\"" + Methods::FromCppString(j->first) + "\"];\n";
-					if (this->end[i]) {
-						accumulated += i.ToString() + "->" + "f;\n";
-						this->end[i] = false;
-					}
 					write(d, accumulated);
 				}
 			}
@@ -215,14 +212,14 @@ private:
 	graph(vector<set<int>>& classes, vector<vector<int>>& signatures, vector<string>& lang, set<int>& old_s, map<int,bool>& old_e) {
 		for (int i = 0; i < classes.size(); i++) {
 			for (int j = 0; j < lang.size(); j++) {
+				for (auto k : classes[i]) {
+					if (old_s.find(k) != old_s.end()) this->start.insert(i);
+					if (old_e[k]) 
+						this->end[i] = true;
+				}
 				if (signatures[i][j] != -1) {
-					for (auto k : classes[i]) {
-						if (old_s.find(k) != old_s.end()) this->start.insert(i);
-						if (old_e[k]) this->end[k] = true;
-					}
 					this->insert(i, signatures[i][j], lang[j]);
 				}
-
 			}
 		}
 		this->Clean();
@@ -274,8 +271,8 @@ public:
 	}
 	void optimize(int p1,int p2,int p3) {
 		if(p1) this->phase_one();
-		if(p1 && p2)this->phase_two();
-		if (p1 && p2 && p3)this->phase_three();
+		if(p2) this->phase_two();
+		if(p3) this->phase_three();
 		//this->phase_four();
 	}
 	void Clean() {
