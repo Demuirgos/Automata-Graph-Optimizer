@@ -222,7 +222,7 @@ void Automata::CanvasRenderer::Board_ManipulationDelta(Platform::Object^ sender,
 		for (Object^ element : castedSender->Children) {
 			auto castedElement = dynamic_cast<node^>(element);
 			if (castedElement != nullptr) {
-				castedElement->Position = Point(castedElement->Position.X + e->Delta.Translation.X, castedElement->Position.Y + e->Delta.Translation.Y);
+				castedElement->Position = Point(castedElement->Position.X + e->Delta.Translation.X/this->ScaleFactor, castedElement->Position.Y + e->Delta.Translation.Y/this->ScaleFactor);
 			}
 		}
 }

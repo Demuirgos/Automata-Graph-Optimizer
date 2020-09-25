@@ -61,12 +61,12 @@ void Automata::MainPage::E_NFA_to_NFA_Toggled(Platform::Object^ sender, Windows:
 {
 	if (E_NFA_to_NFA->IsOn==true) {
 		NFA_to_DFA->IsEnabled = true;
-		this->EditBoard->OptimisationMode += 1;
+		this->EditBoard->OptimisationMode = 1;
 	}
 	else {
 		NFA_to_DFA->IsOn = false;
 		NFA_to_DFA->IsEnabled = false;
-		this->EditBoard->OptimisationMode -= 1;
+		this->EditBoard->OptimisationMode = 0;
 	}
 }
 
@@ -74,22 +74,22 @@ void Automata::MainPage::NFA_to_DFA_Toggled(Platform::Object^ sender, Windows::U
 {
 	if (NFA_to_DFA->IsOn == true) {
 		DFA_to_minDFA->IsEnabled = true;
-		this->EditBoard->OptimisationMode += 1;
+		this->EditBoard->OptimisationMode = 2;
 	}
 	else {
 		DFA_to_minDFA->IsEnabled = false;
 		DFA_to_minDFA->IsOn = false;
-		this->EditBoard->OptimisationMode -= 1;
+		this->EditBoard->OptimisationMode = 1;
 	}
 }
 
 void Automata::MainPage::DFA_to_minDFA_Toggled(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	if (NFA_to_DFA->IsOn == true) {
-		this->EditBoard->OptimisationMode += 1;
+		this->EditBoard->OptimisationMode = 3;
 	}
 	else {
-		this->EditBoard->OptimisationMode -= 1;
+		this->EditBoard->OptimisationMode = 2;
 	}
 }
 
