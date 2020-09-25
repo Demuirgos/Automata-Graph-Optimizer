@@ -379,9 +379,9 @@ void Automata::CanvasRenderer::Onlocked(Automata::node^ sender, Windows::UI::Xam
 		weightRequest->Content = LabelEdge;
 		weightRequest->PrimaryButtonText = "OK";
 		weightRequest->SecondaryButtonText = "Cancel";
+		this->drawing = false;
 		CanvasRenderer^ main = this;
 		concurrency::create_task(weightRequest->ShowAsync()).then([LabelEdge, main](ContentDialogResult result) {
-			main->drawing = false;
 			if (result == ContentDialogResult::Primary) {
 				main->EdgeInserted(Methods::StringToInt(main->StartNode), Methods::StringToInt(main->EndNode), LabelEdge->Text == "" ? "0" : LabelEdge->Text);
 			}
