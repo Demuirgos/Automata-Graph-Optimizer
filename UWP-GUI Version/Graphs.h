@@ -37,10 +37,9 @@ private:
 	}
 	//procedures used in phases
 	set<int> extract_closure(int i, map<int, set<int>>& closures) {
-		if (closures.find(i) == closures.end() && this->node.find(i) != this->node.end()) {
+		if (closures.find(i) == closures.end() && this->nodes.find(i) != this->nodes.end()) {
 			closures[i].insert(i);
 			for (auto j : this->node[i]["0"]) {
-				closures[i].insert(j);
 				for (auto k : extract_closure(j, closures)) {
 					if (this->end[k]) {
 						this->end[i] = true;
@@ -96,8 +95,8 @@ private:
 	//optimization phaes
 	void phase_one() {
 		map<int, set<int>> closures;
-		for (map<int, map<string, set<int>>>::iterator i = this->node.begin(); i != this->node.end(); i++) {
-			extract_closure(i->first, closures);
+		for (auto i = this->nodes.begin(); i != this->nodes.end(); i++) {
+			extract_closure(*i, closures);
 		}
 		for (map<int, set<int>>::iterator i = closures.begin(); i != closures.end(); i++) {
 			for (auto j : i->second) {
