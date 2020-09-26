@@ -244,3 +244,27 @@ void Automata::MainPage::InnerTextOpener_Click(Platform::Object^ sender, Windows
 {
 	FlyoutBase::ShowAttachedFlyout(dynamic_cast<FrameworkElement^>(sender));
 }
+
+
+void Automata::MainPage::paramGrid_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
+{
+	auto castedSender = dynamic_cast<Grid^>(sender);
+	auto h = castedSender->RowDefinitions->GetAt(1)->ActualHeight;
+	auto w = castedSender->ColumnDefinitions->GetAt(1)->ActualWidth;
+	this->BoardHolder->Width = w; this->BoardHolder->Height = h;
+}
+
+
+void Automata::MainPage::BoardHolder_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
+{
+	//pivot1Reworking
+	this->ResultBoard->Width = e->NewSize.Width - 25;
+	this->ResultBoard->Height = e->NewSize.Height - 45;
+	auto textResultHeight = this->ResultBoard->Height - 25;
+	auto textResultWidth = this->ResultBoard->Width - this->InnerTextOpener->Width - 10;
+	this->MinHeighSetter->Value = textResultHeight; this->MaxHeighSetter->Value = textResultHeight;
+	this->MinWidthSetter->Value = textResultWidth; this->MaxWidthSetter->Value = textResultWidth;
+	//pivot2Reworking
+	this->EditBoard->Width = e->NewSize.Width - 25;
+	this->EditBoard->Height = e->NewSize.Height - 45;
+}

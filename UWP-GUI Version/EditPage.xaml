@@ -9,7 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     Width="1150">
 
-    <Grid Width="1150">
+    <Grid x:Name="EditPageMain" Width="1150">
         <SplitView x:Name="editPage" OpenPaneLength="300"  DisplayMode="CompactOverlay" PaneOpening="editPage_PaneOpening" PaneClosing="SplitView_PaneClosing">
             <SplitView.Pane>
                 <Grid Height="{Binding ElementName=editPage,Path=Height}" ScrollViewer.VerticalScrollBarVisibility="Visible">
@@ -21,7 +21,7 @@
                     </Button>
                     <Grid x:Name="ToolBox" Visibility="Collapsed" Margin="0,50">
                         <ScrollViewer>
-                            <ListView  Header="ToolBox" Height="700" VerticalAlignment="Top" >
+                            <ListView  Header="ToolBox" Height="{Binding ElementName=editPage,Path=Height}" VerticalAlignment="Top" >
                                 <ListViewItem>
                                     <StackPanel Orientation="Horizontal">
                                         <StackPanel Margin="10">
@@ -83,21 +83,21 @@
                 </Grid>
             </SplitView.Pane>
             <Grid>
-                <Grid>
-                    <SplitView x:Name="BoardsHolder" Height="250" VerticalAlignment="Top" OpenPaneLength="1100">
+                <Grid x:Name="Holder" SizeChanged="Grid_SizeChanged">
+                    <SplitView x:Name="BoardsHolder" Height="250" VerticalAlignment="Top" OpenPaneLength="{Binding ElementName=BoardsHolder,Path=Width}" SizeChanged="BoardsHolder_SizeChanged">
                         <SplitView.Pane>
-                            <local:CanvasRenderer x:Name="Result" Width="1100" RequestedTheme="Light" Background="White" Height="{Binding ElementName=BoardsHolder,Path=Height}" VerticalAlignment="Top"/>
+                            <local:CanvasRenderer x:Name="Result" Width="{Binding ElementName=BoardsHolder,Path=Width}" RequestedTheme="Light" Background="White" Height="{Binding ElementName=BoardsHolder,Path=Height}" VerticalAlignment="Top"/>
                         </SplitView.Pane>
-                        <local:CanvasRenderer x:Name="Board" Width="1100" RequestedTheme="Light" Background="White" Height="700" VerticalAlignment="Top"/>
+                        <local:CanvasRenderer x:Name="Board" Width="{Binding ElementName=BoardsHolder,Path=Width}" RequestedTheme="Light" Background="White" Height="{Binding ElementName=EditPageMain,Path=Height}" VerticalAlignment="Top"/>
                     </SplitView>
-                    <Rectangle x:Name="separator" VerticalAlignment="Center" ManipulationDelta="separator_ManipulationDelta" ManipulationMode="All" Height="30" PointerEntered="separator_PointerEntered" PointerExited="separator_PointerExited">
+                    <TextBox x:Name="TextInput" Background="White" Height="225" AcceptsReturn="True" Margin="0,0,0,25" VerticalAlignment="Bottom" RequestedTheme="Light"/>
+                    <Rectangle x:Name="separator" VerticalAlignment="Top" ManipulationDelta="separator_ManipulationDelta" ManipulationMode="All" Height="30" PointerEntered="separator_PointerEntered" PointerExited="separator_PointerExited">
                         <Rectangle.Fill>
                             <ImageBrush ImageSource="/Assets/EditPageSeparator.png" Stretch="Fill" />
                         </Rectangle.Fill>
                     </Rectangle>
-                    <TextBox x:Name="TextInput" Background="White" Height="225" AcceptsReturn="True" Margin="0,0,0,25" VerticalAlignment="Bottom" RequestedTheme="Light"/>
                 </Grid>
-                <AppBar VerticalAlignment="Bottom">
+                <AppBar x:Name="BottomBar" VerticalAlignment="Bottom" Margin="-20,0,0,0">
                     <GridView>
                         <AppBarButton x:Name="Render" Icon="Pictures" Label="Render" Click="Render_Click"/>
                         <AppBarButton x:Name="Stop" Icon="Pause" Label="Stop" Click="Stop_Click"/>

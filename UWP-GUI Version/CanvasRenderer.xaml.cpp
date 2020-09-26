@@ -379,6 +379,7 @@ void Automata::CanvasRenderer::Onlocked(Automata::node^ sender, Windows::UI::Xam
 		weightRequest->Content = LabelEdge;
 		weightRequest->PrimaryButtonText = "OK";
 		weightRequest->SecondaryButtonText = "Cancel";
+		this->editMode = false;
 		this->drawing = false;
 		CanvasRenderer^ main = this;
 		concurrency::create_task(weightRequest->ShowAsync()).then([LabelEdge, main](ContentDialogResult result) {
@@ -388,6 +389,7 @@ void Automata::CanvasRenderer::Onlocked(Automata::node^ sender, Windows::UI::Xam
 			uint32 index;
 			if (main->Board->Children->IndexOf(main->drawingEdge, &index))
 				main->Board->Children->RemoveAt(index);
+			main->editMode = true;
 			});
 	}
 }
@@ -401,4 +403,10 @@ void Automata::CanvasRenderer::Ondeleted(Automata::node^ sender)
 {
 	if(this->editMode)
 		this->g->removeNode(Methods::StringToInt(sender->Label));
+}
+
+
+void Automata::CanvasRenderer::UserControl_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
+{
+	this->Board->Measure(e->NewSize);
 }

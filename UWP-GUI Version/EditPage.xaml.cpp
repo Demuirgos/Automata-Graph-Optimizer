@@ -283,3 +283,23 @@ void Automata::EditPage::weight_SelectionChanged(Platform::Object^ sender, Windo
 		}
 	}
 }
+
+
+void Automata::EditPage::Grid_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
+{
+	this->BoardsHolder->Width = e->NewSize.Width;
+	this->Board->Height = e->NewSize.Height/min(1,this->Board->ScaleFactor);
+	this->BoardsHolder->Height = e->NewSize.Height / 2 - 20;
+	this->TextInput->Height = e->NewSize.Height / 2 - 20;
+	this->BottomBar->Width = e->NewSize.Width - 10;
+	float y = e->NewSize.Height / 2 - 30;
+	((TranslateTransform^)this->separator->RenderTransform)->Y = y;
+}
+
+
+void Automata::EditPage::BoardsHolder_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
+{
+	this->BoardsHolder->OpenPaneLength = e->NewSize.Width;
+	this->Result->Width = e->NewSize.Width;
+	this->Board->Width = e->NewSize.Width;
+}

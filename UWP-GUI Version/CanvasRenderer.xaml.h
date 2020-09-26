@@ -76,5 +76,6 @@ namespace Automata
 		void Onlocked(Automata::node^ sender, Windows::UI::Xaml::Input::PointerRoutedEventArgs^ e);
 		void OnNodeStatusUpdated(int s, bool isEnd, bool isStart);
 		void Ondeleted(Automata::node^ sender);
+		void UserControl_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
 	};
 }

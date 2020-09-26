@@ -6,11 +6,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" MinWidth="1280" MinHeight="720" ScrollViewer.HorizontalScrollBarVisibility="Auto" RenderTransformOrigin="0,0" VerticalContentAlignment="Stretch">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" ScrollViewer.HorizontalScrollBarVisibility="Auto" RenderTransformOrigin="0,0" VerticalContentAlignment="Stretch">
 
-    <Grid x:Name="paramGrid">
+    <Grid x:Name="paramGrid" SizeChanged="paramGrid_SizeChanged">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="35*"/>
+            <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="220*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -21,7 +21,7 @@
             <StackPanel x:Name="OpenFile">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Margin="10,5,0,0" Text="Path : " TextWrapping="Wrap" VerticalAlignment="Top" Height="30" Width="39" RenderTransformOrigin="0,0" Grid.Row="1"/>
-                    <Button x:Name="openPath" Content="Chose" Margin="5,2.5,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="35" Width="80" Click="openPath_Click" Grid.Row="1" HorizontalAlignment="Center"/>
+                    <Button x:Name="openPath" Content="Chose" Margin="5,2.5,0,0" VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="35" Width="86" Click="openPath_Click" Grid.Row="1" HorizontalAlignment="Center"/>
                     <Button x:Name="InsertText" Content="&#9654;" Margin="5,2.5,0,0"  VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="35" Width="45" Click="InsertText_Click">
                         <FlyoutBase.AttachedFlyout >
                             <Flyout Placement="RightEdgeAlignedTop">
@@ -51,11 +51,11 @@
         <TextBlock HorizontalAlignment="Left" Margin="27,25,0,0" Text="Automata_Graph_Optimizer" TextWrapping="Wrap" VerticalAlignment="Top" FontSize="48" Height="64" Width="587" Grid.ColumnSpan="2"/>
         <TextBlock HorizontalAlignment="Left" Margin="9,105,0,0" Text="Settings :" TextWrapping="Wrap" VerticalAlignment="Top" Height="32" Width="117" FontSize="24" FontWeight="Bold"/>
         <TextBlock HorizontalAlignment="Left" Margin="15,105,0,0" Text="Result :" TextWrapping="Wrap" VerticalAlignment="Top" Height="32" Width="117" FontSize="24" FontWeight="Bold" Grid.Column="1"/>
-        <Pivot x:Name="BoardHolder" SelectionChanged="BoardHolder_SelectionChanged"  ScrollViewer.HorizontalScrollBarVisibility="Visible" Grid.Row="1" Grid.Column="1" Margin="0,-10,0,0">
+        <Pivot x:Name="BoardHolder" SelectionChanged="BoardHolder_SelectionChanged"  ScrollViewer.HorizontalScrollBarVisibility="Visible" Grid.Row="1" Grid.Column="1" Margin="0,-10,0,0" SizeChanged="BoardHolder_SizeChanged">
             <PivotItem Header="Importion Mode" Margin="21,0,10,0" RequestedTheme="Light" Background="White">
-                <Grid  Width="1200"  Height="600" Grid.Row="1" Grid.Column="1">
-                    <local:CanvasRenderer Margin="10,5,15,10"  x:Name="ResultBoard" VerticalAlignment="Top" HorizontalAlignment="Left"  Width="1145" Height="525"/>
-                    <Button x:Name="InnerTextOpener" Margin="15,0,45,10" Width="175" Height="50" Background="LightGray" Opacity="50" RequestedTheme="Light" Click="InnerTextOpener_Click" VerticalAlignment="Top" HorizontalAlignment="Right">
+                <Grid Grid.Row="1" Grid.Column="1">
+                    <local:CanvasRenderer  x:Name="ResultBoard" VerticalAlignment="Top" HorizontalAlignment="Left" RequestedTheme="Dark" Width="1150" Height="525"/>
+                    <Button x:Name="InnerTextOpener" Margin="15,0,0,10" Width="175" Height="50" Background="LightGray" Opacity="50" RequestedTheme="Light" Click="InnerTextOpener_Click" VerticalAlignment="Top" HorizontalAlignment="Right">
                         <StackPanel Orientation="Horizontal">
                             <SymbolIcon Symbol="DockBottom" Width="30" Height="30"/>
                             <TextBlock Text="String Form" FontSize="20"/>
@@ -65,8 +65,10 @@
                                 <TextBox x:Name="ResultText" Header="Result Graph : " IsReadOnly="True" Height="475" Width="940" AcceptsReturn="True"/>
                                 <Flyout.FlyoutPresenterStyle>
                                     <Style TargetType="FlyoutPresenter">
-                                        <Setter Property="MinWidth" Value="976" />
-                                        <Setter Property="MinHeight" Value="505" />
+                                        <Setter x:Name="MinWidthSetter" Property="MinWidth" Value="976" />
+                                        <Setter x:Name="MaxWidthSetter" Property="MaxWidth" Value="976" />
+                                        <Setter x:Name="MinHeighSetter" Property="MinHeight" Value="505" />
+                                        <Setter x:Name="MaxHeighSetter" Property="MaxHeight" Value="505" />
                                     </Style>
                                 </Flyout.FlyoutPresenterStyle>
                             </Flyout>
@@ -76,7 +78,7 @@
             </PivotItem>
             <PivotItem Header="Creation Mode" >
                 <Grid>
-                    <local:EditPage x:Name="EditBoard" Width="1200" Margin="-17,0,0,0"/>
+                    <local:EditPage x:Name="EditBoard" Margin="8,0,0,0"/>
                 </Grid>
             </PivotItem>
         </Pivot>
