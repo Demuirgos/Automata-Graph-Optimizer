@@ -45,6 +45,7 @@ namespace Automata
 		Windows::UI::Xaml::Input::PointerRoutedEventArgs^ ptrID;
 		bool drawing = false;
 		bool dragging = false;
+		bool suspended = false;
 		String^ StartNode;
 		String^ EndNode;
 		Shapes::Line^ drawingEdge = ref new Shapes::Line();

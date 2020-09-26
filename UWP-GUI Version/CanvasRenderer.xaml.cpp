@@ -218,7 +218,7 @@ void Automata::CanvasRenderer::render()
 void Automata::CanvasRenderer::Board_ManipulationDelta(Platform::Object^ sender, Windows::UI::Xaml::Input::ManipulationDeltaRoutedEventArgs^ e)
 {
 	Canvas^ castedSender = dynamic_cast<Canvas^>(sender);
-	if(!dragging && !drawing)
+	if(!suspended && !dragging && !drawing)
 		for (Object^ element : castedSender->Children) {
 			auto castedElement = dynamic_cast<node^>(element);
 			if (castedElement != nullptr) {
@@ -381,6 +381,7 @@ void Automata::CanvasRenderer::Onlocked(Automata::node^ sender, Windows::UI::Xam
 		weightRequest->SecondaryButtonText = "Cancel";
 		this->editMode = false;
 		this->drawing = false;
+		this->suspended = true;
 		CanvasRenderer^ main = this;
 		concurrency::create_task(weightRequest->ShowAsync()).then([LabelEdge, main](ContentDialogResult result) {
 			if (result == ContentDialogResult::Primary) {
@@ -390,6 +391,7 @@ void Automata::CanvasRenderer::Onlocked(Automata::node^ sender, Windows::UI::Xam
 			if (main->Board->Children->IndexOf(main->drawingEdge, &index))
 				main->Board->Children->RemoveAt(index);
 			main->editMode = true;
+			main->suspended = false;
 			});
 	}
 }
@@ -404,7 +406,6 @@ void Automata::CanvasRenderer::Ondeleted(Automata::node^ sender)
 	if(this->editMode)
 		this->g->removeNode(Methods::StringToInt(sender->Label));
 }
-
 
 void Automata::CanvasRenderer::UserControl_SizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
 {
