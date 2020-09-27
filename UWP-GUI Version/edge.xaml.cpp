@@ -39,17 +39,16 @@ void Automata::edge::update()
 {
 	String^ path = "";
 	if (start->Label != end->Label) {
-		Point Tangent = Point();
 		Point destination = Point((end->Position.X - start->Position.X), (end->Position.Y - start->Position.Y));
-		float dist = sqrt(pow(destination.X, 2) + pow(destination.Y, 2));
-		int xCoeff = destination.X < 0 ? -1 : 1;
-		int yCoeff = destination.Y < 0 ? -1 : 1;
-		float theta = atan(destination.X / destination.Y);
-		destination = Point(destination.X*(1 - 7/dist), destination.Y * (1 - 7 / dist));
-		Tangent = setRotate(Point(destination.X / 8,destination.Y / 8),Point(0,0),5);//Point(destination.X / 4 + 50* xCoeff * (cos(theta)-1/sqrt(2)), destination.Y / 4 + yCoeff * 50 * (cos(theta) - 1 / sqrt(2)));
-		Point Arrow1 = setRotate(getCoordinates(Point(0, 0), destination, Tangent, 1 - 10 / dist), destination,  - 90 - 10);
-		//Point Arrow2 = setRotate(getCoordinates(Point(0, 0), destination, Tangent, 1 - 10 / dist), destination,  90 - 10);
-		path = "M  0, 0 Q " + Tangent.X.ToString() + "," + Tangent.Y.ToString() + " " + destination.X.ToString() + "," + destination.Y.ToString() + " " + "M " + destination.X.ToString() + "," + destination.Y.ToString() + " L " + Arrow1.X.ToString() + "," + Arrow1.Y.ToString();// +" " + "M " + destination.X.ToString() + "," + destination.Y.ToString() + " L " + Arrow2.X.ToString() + "," + Arrow2.Y.ToString();
+		float dist = max(15,sqrt(pow(destination.X, 2) + pow(destination.Y, 2)));
+		destination = Point(destination.X * abs(1 - 7 / dist), destination.Y * abs(1 - 7 / dist));
+		Point Tangent = setRotate(Point(destination.X /4, destination.Y /4), Point(0, 0),5 + 40* (1-1/(dist)));//Point(destination.X / 4 + 50* xCoeff * (cos(theta)-1/sqrt(2)), destination.Y / 4 + yCoeff * 50 * (cos(theta) - 1 / sqrt(2)));
+		Point start = getCoordinates(Point(0, 0), destination, Tangent, 15 / dist);
+		Point Arrow1 = setRotate(getCoordinates(Point(0, 0), destination, Tangent, 1 - 12.5 / dist), destination, 90 + 10);
+		path = "M  " + " 0" + "," + "0" + "L" + start.X.ToString() +"," + start.Y.ToString() + " M " + start.X.ToString() + "," + start.Y.ToString() + " Q " + Tangent.X.ToString() + "," + Tangent.Y.ToString() + " " + destination.X.ToString() + "," + destination.Y.ToString() + " " + "M " + destination.X.ToString() + "," + destination.Y.ToString() + " L " + Arrow1.X.ToString() + "," + Arrow1.Y.ToString();// +" " + "M " + destination.X.ToString() + "," + destination.Y.ToString() + " L " + Arrow2.X.ToString() + "," + Arrow2.Y.ToString();
+		std::wstring data = path->Data();
+		data.append(L"\n");
+		OutputDebugStringW(data.c_str());
 	}
 	else
 		path = "M -3,1 A 11,11 0 1 1 1,1";
@@ -67,7 +66,6 @@ void Automata::edge::Onmoved(node^ sender,Windows::Foundation::Point newPos)
 
 Point Automata::edge::getCoordinates(Point s, Point f, Point c, float t)
 {
-	//(1-t) ((1-t)P0 + tP1) + t((1-t)P1 + tP2)
 	return Point((1-t)*((1-t)*s.X+t*c.X)+t*((1-t)*c.X+t*f.X),(1 - t) * ((1 - t) * s.Y + t * c.Y) + t * ((1 - t) * c.Y + t * f.Y));
 }
 

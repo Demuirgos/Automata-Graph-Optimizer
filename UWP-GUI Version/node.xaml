@@ -19,8 +19,9 @@
         <Ellipse x:Name="HookTop" Width="10" Height="10" Margin="2,-35,0,0" Visibility="Visible" VerticalAlignment="Center" Fill="AliceBlue" Stroke="Gray" StrokeThickness="2" PointerEntered="Hook_PointerEntered" PointerPressed="Hook_PointerPressed" Opacity="0" PointerExited="Hook_PointerExited" PointerReleased="Hook_PointerReleased"/>
         <Ellipse x:Name="HookLeft" Width="10" Height="10" Margin="-35,0,0,0" Visibility="Visible" VerticalAlignment="Center" HorizontalAlignment="Center" Fill="AliceBlue" Stroke="Gray" StrokeThickness="2" PointerEntered="Hook_PointerEntered" Opacity="0" PointerPressed="Hook_PointerPressed" PointerExited="Hook_PointerExited" PointerReleased="Hook_PointerReleased"/>
         <Ellipse x:Name="HookDown" Width="10" Height="10" Margin="2,35,0,0" Visibility="Visible" VerticalAlignment="Center" Fill="AliceBlue" Stroke="Gray" StrokeThickness="2" PointerEntered="Hook_PointerEntered" PointerPressed="Hook_PointerPressed" Opacity="0" PointerExited="Hook_PointerExited" PointerReleased="Hook_PointerReleased"/>
-        <Ellipse x:Name="shape" Width="45" Fill="White" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center" Stroke="Black" StrokeThickness="5"/>
-        <TextBlock x:Name="id"  Width="55" Height="50" FontSize="32"  VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Text="0" FontFamily="10" TextAlignment="Center" RenderTransformOrigin="0.5,0.5">
+        <Ellipse x:Name="shape" Width="45" Fill="White" Height="45" VerticalAlignment="Center" HorizontalAlignment="Center" Stroke="Black" StrokeThickness="3"/>
+        <Ellipse x:Name="StartFlag" Width="17" Fill="White" Height="17" VerticalAlignment="Center" HorizontalAlignment="Center" Stroke="Green" StrokeThickness="2"/>
+        <TextBlock x:Name="id"  Width="55" Height="50" FontSize="32"  VerticalAlignment="Center" Foreground="Black" HorizontalAlignment="Center" Text="0" FontFamily="10" TextAlignment="Center" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,0">
             <TextBlock.RenderTransform>
                 <CompositeTransform ScaleX="0.2" ScaleY="0.2"/>
             </TextBlock.RenderTransform>

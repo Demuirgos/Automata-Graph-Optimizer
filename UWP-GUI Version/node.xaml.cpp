@@ -71,13 +71,13 @@ void Automata::node::update()
 {
 	switch (this->type) {
 	case NodeType::StartingNode : 
-		this->shape->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Green);
+		this->StartFlag->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Green);
 		break;
 	case NodeType::EndingNode:
-		this->shape->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Red);
+		this->StartFlag->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Red);
 		break;
 	case NodeType::OrdinaryNode:
-		this->shape->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Black);
+		this->StartFlag->Stroke = ref new SolidColorBrush(Windows::UI::Colors::Black);
 		break;
 	case NodeType::StartingAndEndingNode:
 		LinearGradientBrush^ linearStroke = ref new LinearGradientBrush();
@@ -88,7 +88,7 @@ void Automata::node::update()
 		linearStroke->GradientStops->Append(stop1);
 		linearStroke->GradientStops->Append(stop2);
 		linearStroke->GradientStops->Append(stop3);
-		this->shape->Stroke = linearStroke;
+		this->StartFlag->Stroke = linearStroke;
 		break;
 	}
 }

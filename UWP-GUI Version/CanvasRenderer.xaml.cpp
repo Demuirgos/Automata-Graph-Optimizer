@@ -102,12 +102,12 @@ void Automata::CanvasRenderer::initialize()
 	int j = 0;
 	auto getColor = [=](int size, int i) {
 		int step = 256 / size;
-		int index = i + 1;
+		int index = (i + 1) * step;
 		SolidColorBrush^ brush = ref new SolidColorBrush();
 		Windows::UI::Color* color = new Windows::UI::Color();
-		color->R = (i % 16 * 16)/4;
-		color->G = (i % 8 * 32)/4;
-		color->B = (i % 4 * 64)/4;
+		color->R = ((123 - i*10) % 16 * 16)/4;
+		color->G = ((123 - i*10) % 8 * 32)/4;
+		color->B = ((123 - i*10) % 4 * 64)/4;
 		color->A = 255; brush->Color = *color;
 		return brush;
 	};
@@ -151,8 +151,8 @@ void Automata::CanvasRenderer::process()
 			double distance = sqrt(dv.X * dv.X + dv.Y * dv.Y);
 			float f = (isRepuslive ? (forceCoeff / (pow(L * distance, 2))) : (forceCoeff * (distance - L) / L));
 			Point F = Point((float)f * dv.X / distance, (float)f * dv.Y / distance);
-			Node1->setPoint(Node1->Force.X + (isRepuslive ? (-10000) : ( 1)) * F.X, Node1->Force.Y + (isRepuslive ? (-10000) : ( 1)) * F.Y, true);
-			Node2->setPoint(Node2->Force.X + (isRepuslive ? ( 10000) : (-1)) * F.X, Node2->Force.Y + (isRepuslive ? ( 10000) : (-1)) * F.Y, true);
+			Node1->setPoint(Node1->Force.X + (isRepuslive ? (-23456) : ( 1)) * F.X, Node1->Force.Y + (isRepuslive ? (-23456) : ( 1)) * F.Y, true);
+			Node2->setPoint(Node2->Force.X + (isRepuslive ? ( 23456) : (-1)) * F.X, Node2->Force.Y + (isRepuslive ? ( 23456) : (-1)) * F.Y, true);
 		}
 	};
 
@@ -277,7 +277,7 @@ void Automata::CanvasRenderer::OnManipulationDelta(Platform::Object^ sender, Win
 		if (!drawing) {
 			dragging = true;
 			auto senderCasted = dynamic_cast<node^>(sender);
-			senderCasted->Position = Point(senderCasted->Position.X + e->Delta.Translation.X * ZoomController->ScaleX, senderCasted->Position.Y + e->Delta.Translation.Y * ZoomController->ScaleY);
+			senderCasted->Position = Point(senderCasted->Position.X + e->Delta.Translation.X / ZoomController->ScaleX, senderCasted->Position.Y + e->Delta.Translation.Y / ZoomController->ScaleY);
 		} else {
 			Windows::UI::Input::PointerPoint^ ptrPt = this->ptrID->GetCurrentPoint(this->Board);
 			if (ptrPt->Properties->IsLeftButtonPressed)
@@ -366,10 +366,6 @@ void Automata::CanvasRenderer::Onlocked(Automata::node^ sender, Windows::UI::Xam
 	if (drawing && editMode) {
 		this->EndNode = sender->Label;
 		this->stop();
-		Point ptrEPosition = this->Layout->Lookup(this->EndNode)->Position;
-		Point ptrSPosition = this->Layout->Lookup(this->StartNode)->Position;
-		float size = this->Layout->Lookup(this->StartNode)->Size;
-		drawingEdge->X2 = (ptrEPosition.X - ptrSPosition.X) * this->ZoomController->ScaleX; drawingEdge->Y2 = (ptrEPosition.Y - ptrSPosition.Y) * this->ZoomController->ScaleY;
 		ContentDialog^ weightRequest = ref new ContentDialog();
 		TextBox^ LabelEdge = ref new TextBox();
 		LabelEdge->Width = 175;
