@@ -394,9 +394,9 @@ public:
 	graph operator+(graph &rhs){
 		graph res = graph(this); 
 		int offset = this->node.size();
-		for(auto i=res.end.begin();i!=res.end.end();i++){//we loop through all the nodes in the first graph
-			if(i->second){ // we check if it's an end node if it is 
-				for(auto start:rhs.start) // we loop through all the starting nodes of the second graph
+		for(auto i=res.end.begin();i!=res.end.end();i++){
+			if(i->second){  
+				for(auto start:rhs.start) 
 				{
 					res.insert(i->first,start+offset,"0");
 				}
