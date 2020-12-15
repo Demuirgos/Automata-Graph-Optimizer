@@ -1,5 +1,5 @@
 # Automata-Graph-Optimizer
-An executable that takes in a file containing an NFA/DFA/e_NFA automaton graph file (following graphviz's grammar&amp;syntax) and converts it to a minimized DFA
+A UWP App that takes in a file containing an NFA/DFA/e_NFA automaton graph file (following graphviz's grammar&amp;syntax) and converts it to a minimized DFA
 # Modes :
 ## External Data Source via gv/dot Files:
 ![External](https://github.com/DemuirGos/Automata-Graph-Optimizer/blob/Main/ReadMe/OpenFileMode.png)
