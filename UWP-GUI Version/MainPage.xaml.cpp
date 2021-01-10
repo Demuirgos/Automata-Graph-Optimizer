@@ -238,8 +238,6 @@ void Automata::MainPage::BoardHolder_SelectionChanged(Platform::Object^ sender, 
 	}
 }
 
-
-
 void Automata::MainPage::InnerTextOpener_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	FlyoutBase::ShowAttachedFlyout(dynamic_cast<FrameworkElement^>(sender));
