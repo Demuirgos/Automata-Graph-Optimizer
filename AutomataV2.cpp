@@ -214,7 +214,9 @@ private:
 		this->start = r.start;
 	}
 	bool traverseCheck(graph* g, int state, string& key, int it) {
-		if (it == key.size() && g->end[states]) return true;
+		if (it == key.size())
+			if(g->end[states]) return true;
+			else return false;
 		string s = key.substr(it, 1);
 		bool valid = false;
 		for (map<string, set<int>>::iterator i = g->node[state].begin(); i != g->node[state].end(); i++) {
