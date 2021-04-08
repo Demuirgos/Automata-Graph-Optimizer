@@ -214,30 +214,17 @@ private:
 		this->start = r.start;
 	}
 	bool traverseCheck(graph* g, int state, string& key, int it) {
-		if (it == key.size()) return false;
+		if (it == key.size() && g->end[states]) return true;
 		string s = key.substr(it, 1);
+		bool valid = false;
 		for (map<string, set<int>>::iterator i = g->node[state].begin(); i != g->node[state].end(); i++) {
 			if (i->first == s) {
-				if (it == key.size() - 1) {
-					if (g->end[state])
-						return true;
-					for (auto states : i->second) {
-						if (g->end[states]) return true;
-					}
-					return false;
-
+				for (int newState : i->second) {
+					valid |= traverseCheck(g, newState, key, ++it);
 				}
-				else {
-					bool valid = false;
-					for (int newState : i->second) {
-						valid |= traverseCheck(g, newState, key, ++it);
-						if (valid) return valid;
-					}
-					return valid;
-				}
-			}
+			} 
 		}
-		return false;
+		return valid;
 	}
 	void regexprExtratction(int state, string& s,map<int,bool>& p) {
 		if(p[state]){
