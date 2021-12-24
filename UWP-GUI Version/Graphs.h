@@ -293,7 +293,7 @@ public:
 				for (auto dest : edge.second) {
 					if (this->end[dest] && !marked[dest]) {
 						marked[dest] = true;
-						data +=node.first.ToString() + "->" + "f" + ";\n";
+						data +=dest.ToString() + "->" + "f" + ";\n";
 					}
 					data += node.first.ToString() + "->" + dest.ToString() + " [label=\"" + Methods::FromCppString(edge.first) + "\"];\n";
 				}
